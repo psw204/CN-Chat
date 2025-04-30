@@ -1,0 +1,124 @@
+.add-user-modal {
+  width: 340px;
+  min-height: 180px;
+  padding: 38px 28px 32px 28px;
+  background: linear-gradient(120deg, #232946 80%, #4ae891 100%);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.16);
+  position: absolute;
+  top: 0; bottom: 0; left: 0; right: 0;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  z-index: 20;
+}
+
+/* 닫기 버튼 */
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(35,41,70,0.7);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.18s, color 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.close-btn:hover {
+  background: #ff6b6b;
+  color: #fff;
+}
+
+.add-user-form {
+  display: flex;
+  gap: 16px;
+}
+
+.add-user-form input {
+  flex: 1;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  background: rgba(74, 233, 145, 0.08);
+  color: #fff;
+  transition: background 0.2s;
+}
+
+.add-user-form input:focus {
+  background: rgba(74, 233, 145, 0.18);
+}
+
+.add-user-form button {
+  padding: 16px 22px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #4ae891 60%, #6bcfff 100%);
+  color: #232946;
+  border: none;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.add-user-form button:hover {
+  background: linear-gradient(90deg, #6bcfff 60%, #4ae891 100%);
+}
+
+.searched-user {
+  margin-top: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  background: rgba(74, 233, 145, 0.07);
+  padding: 16px 18px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(74, 233, 145, 0.06);
+}
+
+.searched-user-detail {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.searched-user-detail img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #4ae89133;
+}
+
+.searched-user-detail span {
+  font-size: 1.1rem;
+  color: #fff;
+  font-weight: 500;
+}
+
+.searched-user button {
+  padding: 10px 18px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #4ae891 60%, #6bcfff 100%);
+  color: #232946;
+  border: none;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.searched-user button:hover {
+  background: linear-gradient(90deg, #6bcfff 60%, #4ae891 100%);
+}
