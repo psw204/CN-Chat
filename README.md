@@ -39,23 +39,23 @@
 | **정승훈**      | 🔹 단체 채팅방 생성 및 관리 기능<br>🔹 사용자 단위 채팅방 나가기 로직 구현                                                                                               |
 
 ## 프로젝트 디렉토리 구조
-'''
+```
 CN-Chat
-├── backend/                 
-│   ├── accounts/           # 사용자 인증 및 회원 관리 (박상원)
-│   ├── chat/               # 채팅, 채팅방, WebSocket, 차단/그룹 채팅 로직 (박상원)
-│   ├── media/              # 업로드된 이미지 및 파일 저장소 (박상원, 이후 박태건 기능 연동)
-│   ├── cschat/             # Django 프로젝트 설정 및 routing (박상원)
-│   └── requirements.txt    # 백엔드 의존성 정의
+├── backend/
+│   ├── accounts/         # 사용자 인증 및 회원 관리 (박상원)
+│   ├── chat/             # 채팅, 채팅방, WebSocket, 차단/그룹 채팅 로직 (박상원)
+│   ├── media/            # 업로드된 이미지 및 파일 저장소 (박상원, 이후 박태건 기능 연동)
+│   ├── cschat/           # Django 프로젝트 설정 및 routing (박상원)
+│   └── requirements.txt  # 백엔드 의존성 정의
 ├── frontend/
 │   ├── src/
-│   │   ├── components/     # 채팅 UI, 상태 표시, 전송 UI 등 (박상원)
-│   │   └── pages/          # 로그인, 채팅방 등 주요 화면 (박상원)
-│   └── public/             # 정적 파일 (박상원)
-├── venv/                   # Python 가상환경 (로컬 실행용)
-├── package.json            # dev/백엔드/프론트 동시 실행 스크립트 포함 (박상원)
-└── README.md               # 프로젝트 설명 문서
-'''
+│   │   ├── components/   # 채팅 UI, 상태 표시, 전송 UI 등 (박상원)
+│   │   └── pages/        # 로그인, 채팅방 등 주요 화면 (박상원)
+│   └── public/           # 정적 파일 (박상원)
+├── venv/                 # Python 가상환경 (로컬 실행용)
+├── package.json          # dev/백엔드/프론트 동시 실행 스크립트 포함 (박상원)
+└── README.md             # 프로젝트 설명 문서
+```
 
 ## 실행 방법
 
