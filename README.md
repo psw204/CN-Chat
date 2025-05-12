@@ -100,9 +100,6 @@ npm run dev
 
 이 명령은 `frontend`와 `backend` 서버를 동시에 실행합니다.
 
-* **프론트엔드**: React 개발 서버가 `http://localhost:3000`에서 실행됩니다.
-* **백엔드**: Django 서버가 `http://localhost:8000`에서 실행됩니다.
-
 ### 5. 추가 설정
 
 * JWT 토큰을 발급받으려면 로그인 기능을 사용하여 로그인 후 토큰을 받습니다.
