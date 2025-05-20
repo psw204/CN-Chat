@@ -1,0 +1,37 @@
+/* 글로벌 스타일 초기화 및 폰트 지정 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", "Lucida Sans", Arial, sans-serif;
+}
+
+body {
+  background-image: url("../images/background.jpg");
+  background-size: cover;
+  min-height: 100vh;
+  color: #f5f6fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wrapper {
+  width: 78vw;
+  height: 88vh;
+  background: rgba(30, 33, 42, 0.85);
+  border-radius: 16px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
+  display: flex;
+  overflow: hidden;
+  backdrop-filter: blur(14px) saturate(160%);
+}
+
+.loading-indicator {
+  padding: 60px;
+  font-size: 2.3rem;
+  border-radius: 12px;
+  background: rgba(24, 32, 48, 0.92);
+  text-align: center;
+}
