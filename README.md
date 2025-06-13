@@ -86,7 +86,7 @@ cd CN-Chat
 2. 필요한 Python 패키지를 설치합니다.
 
    ```bash
-   pip install -r backend/requirements.txt
+   pip install -r requirements.txt
    ```
 
 3. 데이터베이스 마이그레이션을 적용합니다.
