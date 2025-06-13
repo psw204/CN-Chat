@@ -70,7 +70,7 @@ CN-Chat
 
 ```bash
 git clone https://github.com/yourusername/yourproject.git
-cd yourproject
+cd CN-Chat
 ```
 
 ### 2. 백엔드 (Django) 설정
