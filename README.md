@@ -41,20 +41,19 @@
 ## 프로젝트 디렉토리 구조
 ```
 CN-Chat
-├── backend/
-│   ├── accounts/         # 사용자 인증 및 회원 관리
-│   ├── chat/             # 채팅, 채팅방, WebSocket, 차단/그룹 채팅 로직
-│   ├── media/            # 업로드된 이미지 및 파일 저장소
-│   ├── cschat/           # Django 프로젝트 설정 및 routing
-│   └── requirements.txt  # 백엔드 의존성 정의
-├── frontend/
-│   ├── src/
-│   │   ├── components/   # 채팅 UI, 상태 표시, 전송 UI 등
-│   │   └── pages/        # 로그인, 채팅방 등 주요 화면
-│   └── public/           # 정적 파일
-├── venv/                 # Python 가상환경
-├── package.json          # dev/백엔드/프론트 동시 실행 스크립트 포함
-└── README.md             # 프로젝트 설명 문서
+├── README.md                 # 프로젝트 설명 문서
+├── backend/                 # 백엔드 Django 프로젝트
+│   ├── chat/                # 채팅 애플리케이션 (WebSocket, 모델, API)
+│   ├── cschat/              # Django 프로젝트 설정
+│   ├── media/               # 업로드된 파일 저장소
+│   └── manage.py            # Django 관리 스크립트
+└── frontend/               # 프론트엔드 React 프로젝트
+├── src/                 # 소스 코드
+│   ├── app/             # 앱 진입점
+│   ├── assets/          # 이미지, 스타일시트
+│   ├── features/        # 인증, 채팅, 사용자 컴포넌트
+│   └── shared/          # API, 소켓, 상태관리
+└── package.json         # 프론트엔드 의존성
 ```
 
 ## 실행 방법
@@ -71,7 +70,7 @@ CN-Chat
 
 ```bash
 git clone https://github.com/yourusername/yourproject.git
-cd yourproject
+cd CN-Chat
 ```
 
 ### 2. 백엔드 (Django) 설정
