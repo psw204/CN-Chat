@@ -11,7 +11,6 @@
 * 팀원: 박태건, 신진성, 정승훈
 * 과목: 컴퓨터 네트워크
 * 지도 교수: 최차봉 교수님
-* 최근 수정일: 2025.05.12
 
 ## 주요 기능
 
@@ -69,8 +68,7 @@ CN-Chat
 먼저, 프로젝트를 클론합니다.
 
 ```bash
-git clone https://github.com/yourusername/yourproject.git
-cd CN-Chat
+git clone https://github.com/psw204/CN-Chat.git
 ```
 
 ### 2. 백엔드 (Django) 설정
@@ -89,44 +87,32 @@ cd CN-Chat
    pip install -r requirements.txt
    ```
 
-3. 데이터베이스 마이그레이션을 적용합니다.
-
-   ```bash
-   python manage.py migrate
-   ```
-
-4. Django 서버를 실행합니다.
-
-   ```bash
-   python manage.py runserver
-   ```
-
 ### 3. 프론트엔드 (React) 설정
 
 1. `frontend` 폴더로 이동하여 필요한 패키지를 설치합니다.
 
    ```bash
-   cd frontend
    npm install
-   ```
-
-2. 개발 서버를 실행합니다.
-
-   ```bash
-   npm run dev
+   npm install vite
    ```
 
 ### 4. 전체 실행
 
-**프론트엔드**와 **백엔드**를 동시에 실행하려면, 프로젝트의 루트 디렉터리에서 `npm run dev` 명령을 사용합니다.
+**프론트엔드**와 **백엔드**를 동시에 실행하려면, 프로젝트의 루트 디렉터리에서  concurrently를 설치 후 `npm run dev` 명령을 사용합니다.
 
 ```bash
+npm install concurrently
 npm run dev
 ```
 
 이 명령은 `frontend`와 `backend` 서버를 동시에 실행합니다.
 
-### 5. 추가 설정
+### 5. 접속 정보
+
+- 프론트엔드: `http://localhost:5173`
+- 백엔드: `http://localhost:8000`
+
+### 6. 추가 설정
 
 * JWT 토큰을 발급받으려면 로그인 기능을 사용하여 로그인 후 토큰을 받습니다.
 * 채팅 기능을 사용하려면 다른 사용자와 함께 채팅방을 생성하고 실시간 메시지를 교환합니다.
