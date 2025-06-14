@@ -58,6 +58,22 @@
   filter: brightness(1.09);
 }
 
+/* 채팅방 추가 버튼 - J*/
+.makechattingroom-btn {
+  width: 38px;
+  height: 38px;
+  background: rgba(74, 233, 145, 0.13);
+  padding: 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.makechattingroom:hover {
+  background: #4ae891;
+  filter: brightness(1.09);
+}
+
+
 .chatlist-item {
   display: flex;
   align-items: center;

@@ -7,6 +7,7 @@ import plusImg from "../../assets/images/plus.png";
 import minusImg from "../../assets/images/minus.png";
 import searchImg from "../../assets/images/search.png";
 import profileImg from "../../assets/images/profile.jpg";
+import makechattingroomImg from "../../assets/images/add_chatting_room.png";
 import * as api from "../../shared/api";
 
 const ChatList = () => {
@@ -14,6 +15,7 @@ const ChatList = () => {
   const [addMode, setAddMode] = useState(false);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [createRoomMode, setCreateRoomMode] = useState(false); // 기존 코드에서 여러명의 인원 추가 - J
 
   const { currentUser } = useUserStore();
   const { chatId, changeChat } = useChatStore();
@@ -95,6 +97,12 @@ const ChatList = () => {
           className="chatlist-add-btn"
           onClick={() => setAddMode((prev) => !prev)}
         />
+        <img                        //채팅방 생성 버튼 - J
+          src={addMode ? minusImg : makechattingroomImg}
+          alt="채팅방 만들기"
+          className="makechattingroom-btn"
+          onClick={() => { setCreateRoomMode((prev) => !prev);}}
+        />
       </div>
       {sortedChats.map((chat) => (
         <div
@@ -142,6 +150,21 @@ const ChatList = () => {
           isLoading={isLoading}
         />
       )}
+
+      {createRoomMode && (
+        <AddUser
+          onClose={() => setCreateRoomMode(false)}
+          onChatCreated={async () => {
+            setCreateRoomMode(false);
+            const data = await api.fetchUserChats({ userId: currentUser.id });
+            setChats(data);
+          }}
+          isLoading={isLoading}
+          multiSelect={true} // 여러 명 선택
+        />
+      )}
+
+
       {isLoading && <div className="loading-overlay">로딩 중...</div>}
     </div>
   );
