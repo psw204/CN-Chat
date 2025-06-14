@@ -11,6 +11,8 @@ class User(AbstractUser):
 class Chat(models.Model):
     users = models.ManyToManyField(User)
     updated_at = models.DateTimeField(auto_now=True)
+    chat_room_name = models.CharField(max_length=100, blank=True, null=True)    # 채팅방 이름 - J
+    is_group = models.BooleanField(default=False)                               # 단체 채팅 여부 - J
 
 class Message(models.Model):
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)

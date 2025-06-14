@@ -44,15 +44,18 @@ export async function searchUser({ username }) {
 }
 
 // 채팅방 생성
-export async function createChat({userId}) {
+export async function createChat({user_ids, chat_room_name}) { // userids로 수정되었습니다 - J
   const token = localStorage.getItem("token");
+  const body = { user_ids };
+  if (chat_room_name) body.chat_room_name = chat_room_name; // 단체 채팅방일 때만 추가
+
   const res = await fetch(`${API_BASE}/chats/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ user_id: userId }),
+    body: JSON.stringify(body),
   });
   if (res.status !== 200 && res.status !== 201) throw new Error();
   return await res.json();
@@ -78,6 +81,7 @@ export async function fetchUserChats({ userId }) {
     // last_message 필드 활용
     return {
       chatId: chat.id,
+      chatRoomName: chat.chat_room_name, // 단체 채팅방 이름 - J
       user: otherUser,
       lastMessage: chat.last_message, // last_message 전체 객체를 저장
       isSeen: true,

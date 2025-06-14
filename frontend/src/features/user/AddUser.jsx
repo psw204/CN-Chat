@@ -58,16 +58,16 @@ const AddUser = ({ onClose, onChatCreated = () => {}, multiSelect = false }) => 
     if (multiSelect) {                            // 여러명 추가할 때 - J
       if (selectedUsers.length === 0 || !roomName.trim()) return;
       try {
-        await api.createChat({ user_ids: selectedUsers, name: roomName });
+        await api.createChat({ user_ids: selectedUsers, chat_room_name: roomName });
         if (onChatCreated) onChatCreated();
         onClose();
       } catch (err) {
         setError(err.message);
       }
     } else {
-      if (!user) return;                            //기존에 혼자만 추가할 때 - J
+      if (!user) return;                              //기존에 혼자만 추가할 때 - J
       try {
-        await api.createChat({userId: user.id});
+        await api.createChat({user_ids: [user.id]});   // 개인 채팅방도 유저 정보를 백으로 넘길 때 배열로 넘깁니다 - J
         if (onChatCreated) onChatCreated(); 
         onClose();
       } catch (err) {

@@ -1,19 +1,21 @@
 import { create } from "zustand";
 import { useUserStore } from "./userStore";
 import * as api from "../api";
+import ChatRoom from "../../features/chat/ChatRoom";
 
 // 채팅 상태 관리
 export const useChatStore = create((set) => ({
   chatId: null,
+  ChatRoomName: null, // 단체 채팅방 이름 - J
   user: null,
   isCurrentUserBlocked: false,
   isReceiverBlocked: false,
 
   // 채팅방 변경
-  changeChat: async (chatId, user) => {
+  changeChat: async (chatId, user, chatRoomName) => {
     const currentUser = useUserStore.getState().currentUser;
     if (!user) {
-      set({ chatId: null, user: null, isCurrentUserBlocked: false, isReceiverBlocked: false });
+      set({ chatId: null, ChatRoomName, user: null, isCurrentUserBlocked: false, isReceiverBlocked: false });
       return;
     }
     try {
@@ -52,6 +54,7 @@ export const useChatStore = create((set) => ({
         set({
           chatId,
           user: userData,
+          chatRoomName,
           isCurrentUserBlocked: false,
           isReceiverBlocked: false,
         });

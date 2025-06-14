@@ -24,10 +24,11 @@ const ChatRoom = () => {
   const [isUpdatingBlock, setIsUpdatingBlock] = useState(false);
 
   const { currentUser } = useUserStore();
-  const { chatId, user, isCurrentUserBlocked, isReceiverBlocked, changeChat } = useChatStore();
+  const { chatId, user, ChatRoomName, isGroup, isCurrentUserBlocked, isReceiverBlocked, changeChat } = useChatStore(); //채팅방 리스트를 어디서 받아오는겨 - J
 
   const messagesEndRef = useRef(null);
   const mediaInputRef = useRef(null);
+
 
   // 메시지 내역 불러오기 + WebSocket 연결
   useEffect(() => {
@@ -127,7 +128,14 @@ const ChatRoom = () => {
 
   if (isCurrentUserBlocked || isReceiverBlocked) {
     return (
-      <div className="chatroom">
+      <div className="chatroom-header">
+        <div className="room-title">
+          <h3>
+            {chat?.chat_room_name
+              ? chat.chat_room_name
+              : user?.username}
+          </h3>
+        </div>
         <div className="chatroom-header">
           <div className="user-info">
             <img src={getAvatarSrc(user?.avatar)} alt="" />
