@@ -13,10 +13,10 @@ export const useChatStore = create((set) => ({
   isReceiverBlocked: false,
 
   // 채팅방 변경
-  changeChat: async (chatId, user, chatRoomName, isGroup) => {
+  changeChat: async (chatId, user, chatRoomName, isGroup, users) => {
     const currentUser = useUserStore.getState().currentUser;
     if (!user) {
-      set({ chatId: null, chatRoomName: null, isGroup: false, user: null, isCurrentUserBlocked: false, isReceiverBlocked: false });
+      set({ chatId: null, chatRoomName: null, isGroup: false, user: null, users: 5, isCurrentUserBlocked: false, isReceiverBlocked: false });
       return;
     }
     try {
@@ -34,6 +34,7 @@ export const useChatStore = create((set) => ({
           user: userData,
           chatRoomName,
           isGroup,
+          users,                                            // 유저인원 확인
           isCurrentUserBlocked: true,
           isReceiverBlocked: true,
         });
@@ -44,6 +45,7 @@ export const useChatStore = create((set) => ({
           user: userData,
           chatRoomName,
           isGroup,
+          users,                                            // 유저인원 확인
           isCurrentUserBlocked: true,
           isReceiverBlocked: false,
         });
@@ -63,6 +65,7 @@ export const useChatStore = create((set) => ({
           user: userData,
           chatRoomName,
           isGroup,
+          users,                                            // 유저인원 확인
           isCurrentUserBlocked: false,
           isReceiverBlocked: false,
         });

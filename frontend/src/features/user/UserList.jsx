@@ -60,11 +60,12 @@ const ChatList = () => {
         await api.markChatAsSeen({ userId: currentUser.id, chatId: chat.chatId });
       }
 
-      await changeChat(             //채팅방 버튼 눌렀을 때 전달되는 내용들 - J
+      await changeChat(                                               //채팅방 버튼 눌렀을 때 전달되는 내용들 - J
         chat.chatId, 
         chat.user,
         chat.chatRoomName || chat.displayName || chat.chat_room_name, // 방 이름 - J
-        chat.isGroup // 단체방 여부 - J
+        chat.isGroup,                                                  // 단체방 여부 - J
+        chat.users                                                    // 참여자 정보도 같이 전달 - J
       );
     } catch (err) {
       // 에러 핸들링

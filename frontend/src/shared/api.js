@@ -82,6 +82,7 @@ export async function fetchUserChats({ userId }) {
       displayName: chat.chat_room_name, // ← 항상 이름만 출력
       isGroup: chat.is_group,
       user: chat.users.find(u => u.id !== userId) || chat.users[0],
+      users: chat.users,                //유저 리스트도 같이 넘김 - J
       lastMessage: chat.last_message,
       isSeen: true,
       updatedAt: chat.updated_at,
