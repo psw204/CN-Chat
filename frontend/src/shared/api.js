@@ -77,13 +77,12 @@ export async function fetchUserChats({ userId }) {
   const data = await res.json();
   
   return data.map(chat => {
-    const otherUser = chat.users.find(u => u.id !== userId) || chat.users[0];
-    // last_message 필드 활용
     return {
       chatId: chat.id,
-      chatRoomName: chat.chat_room_name, // 단체 채팅방 이름 - J
-      user: otherUser,
-      lastMessage: chat.last_message, // last_message 전체 객체를 저장
+      displayName: chat.chat_room_name, // ← 항상 이름만 출력
+      isGroup: chat.is_group,
+      user: chat.users.find(u => u.id !== userId) || chat.users[0],
+      lastMessage: chat.last_message,
       isSeen: true,
       updatedAt: chat.updated_at,
     };

@@ -6,16 +6,17 @@ import ChatRoom from "../../features/chat/ChatRoom";
 // 채팅 상태 관리
 export const useChatStore = create((set) => ({
   chatId: null,
-  ChatRoomName: null, // 단체 채팅방 이름 - J
+  chatRoomName: null, // 단체 채팅방 이름 - J
+  isGroup: false,     // 단체 챗방 여부 - J
   user: null,
   isCurrentUserBlocked: false,
   isReceiverBlocked: false,
 
   // 채팅방 변경
-  changeChat: async (chatId, user, chatRoomName) => {
+  changeChat: async (chatId, user, chatRoomName, isGroup) => {
     const currentUser = useUserStore.getState().currentUser;
     if (!user) {
-      set({ chatId: null, ChatRoomName, user: null, isCurrentUserBlocked: false, isReceiverBlocked: false });
+      set({ chatId: null, chatRoomName: null, isGroup: false, user: null, isCurrentUserBlocked: false, isReceiverBlocked: false });
       return;
     }
     try {
@@ -31,6 +32,8 @@ export const useChatStore = create((set) => ({
         set({
           chatId,
           user: userData,
+          chatRoomName,
+          isGroup,
           isCurrentUserBlocked: true,
           isReceiverBlocked: true,
         });
@@ -39,6 +42,8 @@ export const useChatStore = create((set) => ({
         set({
           chatId,
           user: userData,
+          chatRoomName,
+          isGroup,
           isCurrentUserBlocked: true,
           isReceiverBlocked: false,
         });
@@ -47,6 +52,8 @@ export const useChatStore = create((set) => ({
         set({
           chatId,
           user: userData,
+          chatRoomName,
+          isGroup,
           isCurrentUserBlocked: false,
           isReceiverBlocked: true,
         });
@@ -55,13 +62,14 @@ export const useChatStore = create((set) => ({
           chatId,
           user: userData,
           chatRoomName,
+          isGroup,
           isCurrentUserBlocked: false,
           isReceiverBlocked: false,
         });
       }
       
     } catch (err) {
-      set({ chatId, user, isCurrentUserBlocked: false, isReceiverBlocked: false });
+      set({ chatId, user, chatRoomName, isGroup, isCurrentUserBlocked: false, isReceiverBlocked: false });
     }
   },
 

@@ -63,9 +63,12 @@ class ChatViewSet(viewsets.ModelViewSet):
     serializer_class = ChatSerializer
     queryset = Chat.objects.all()
 
-    def get_queryset(self):
+    def get_queryset(self):                                             # 로그인된 user_id를 제공하는 함수 - J
         user_id = self.request.query_params.get("user_id")
+        # print("user_id:", user_id) # 디버깅 - J
         if user_id:
+            # for chat in Chat.objects.filter(users__id=user_id):
+            #     print(f"id: {chat.id}, 이름: {chat.chat_room_name}, 단체방 여부: {chat.is_group}, 멤버: {[u.id for u in chat.users.all()]}") # 디버깅 - J
             return Chat.objects.filter(users__id=user_id)
         return Chat.objects.none()
 

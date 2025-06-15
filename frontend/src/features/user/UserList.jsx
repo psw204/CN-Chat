@@ -60,7 +60,12 @@ const ChatList = () => {
         await api.markChatAsSeen({ userId: currentUser.id, chatId: chat.chatId });
       }
 
-      await changeChat(chat.chatId, chat.user);
+      await changeChat(             //채팅방 버튼 눌렀을 때 전달되는 내용들 - J
+        chat.chatId, 
+        chat.user,
+        chat.chatRoomName || chat.displayName || chat.chat_room_name, // 방 이름 - J
+        chat.isGroup // 단체방 여부 - J
+      );
     } catch (err) {
       // 에러 핸들링
     } finally {
@@ -124,9 +129,12 @@ const ChatList = () => {
           />
           <div className="chatlist-item-texts">
             <span>
-              {chat.user.blocked?.includes?.(currentUser.id)
-                ? "User"
-                : chat.user.username}
+              {chat.isGroup
+                ? chat.displayName || chat.chat_room_name // 단체방이면 방 이름 - J
+                : chat.user.blocked?.includes?.(currentUser.id)
+                  ? "User"
+                  : chat.user.username // 1:1이면 유저 이름 - J
+              }
             </span>
             <span>
               {chat.lastMessage

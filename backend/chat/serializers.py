@@ -48,7 +48,7 @@ class ChatSerializer(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()
     class Meta:
         model = Chat
-        fields = ['id', 'users', 'updated_at', 'last_message']
+        fields = ['id', 'chat_room_name', 'is_group', 'users', 'updated_at', 'last_message'] # 단체 챗방 이름이랑 그룹 여부 추가
     
     def get_last_message(self, obj):
         last_msg = obj.message_set.order_by('-created_at').first()

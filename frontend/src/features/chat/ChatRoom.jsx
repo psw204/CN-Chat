@@ -24,7 +24,7 @@ const ChatRoom = () => {
   const [isUpdatingBlock, setIsUpdatingBlock] = useState(false);
 
   const { currentUser } = useUserStore();
-  const { chatId, user, ChatRoomName, isGroup, isCurrentUserBlocked, isReceiverBlocked, changeChat } = useChatStore(); //채팅방 리스트를 어디서 받아오는겨 - J
+  const { chatId, user, chatRoomName, isGroup, isCurrentUserBlocked, isReceiverBlocked, changeChat } = useChatStore();
 
   const messagesEndRef = useRef(null);
   const mediaInputRef = useRef(null);
@@ -59,7 +59,7 @@ const ChatRoom = () => {
     if (!chatId || !user) return;
     const interval = setInterval(async () => {
       try {
-        await changeChat(chatId, user);
+        await changeChat(chatId, user, chatRoomName, isGroup); //단체 챗방 이름과 그룹 여부 추가 - J
       } catch (err) {}
     }, 5000);
     return () => clearInterval(interval);
@@ -126,15 +126,12 @@ const ChatRoom = () => {
 
   if (!user) return null;
 
-  if (isCurrentUserBlocked || isReceiverBlocked) {
+  if (isCurrentUserBlocked || isReceiverBlocked) {  //여기는 차단된 상태의 채팅방 화면 - J
     return (
       <div className="chatroom-header">
         <div className="room-title">
-          <h3>
-            {chat?.chat_room_name
-              ? chat.chat_room_name
-              : user?.username}
-          </h3>
+          {/* 사실 이부분은 크게 의미 없으나 혹시 모르니 적용 - J */}
+          <h3> {isGroup ? chatRoomName : user?.username} </h3> 
         </div>
         <div className="chatroom-header">
           <div className="user-info">
@@ -165,13 +162,14 @@ const ChatRoom = () => {
     );
   }
 
-  return (
+  return (                                                //여기가 차단되지 않은 상태의 채팅창 - J
     <div className="chatroom">
       <div className="chatroom-header">
         <div className="user-info">
           <img src={getAvatarSrc(user?.avatar)} alt="" />
           <div className="user-details">
-            <h4>{user?.username}</h4>
+            {/* 단체 챗방이면 방제, 개인 챗방이면 상대방 id - J */}
+            <h4> {isGroup ? chatRoomName : user?.username} </h4> 
             <p>{user?.username}</p>
           </div>
         </div>
