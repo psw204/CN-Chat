@@ -21,4 +21,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     async def chat_message(self, event):
-        await self.send(text_data=event['message'])
+        message = event["message"]
+        print(f"백 메세지: {message}") 
+        if isinstance(message, dict):
+            await self.send(text_data=json.dumps(message))
+        else:
+            await self.send(text_data=message)

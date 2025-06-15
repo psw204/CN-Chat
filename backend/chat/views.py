@@ -7,6 +7,11 @@ from .serializers import UserSerializer, ChatSerializer, MessageSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import IsAuthenticated           
+from rest_framework import status
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from django.utils import timezone
 
 # 회원가입
 class RegisterView(APIView):
@@ -57,6 +62,43 @@ class BlockUserView(APIView):
             request.user.blocked.remove(target)
         request.user.save()
         return Response({"blocked": [u.id for u in request.user.blocked.all()]})
+    
+# 단체 채팅방 나가기 - J   
+class LeaveGroupChatView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, chat_id):
+        user = request.user
+        try:
+            chat = Chat.objects.get(id=chat_id, is_group=True)
+        except Chat.DoesNotExist:
+            return Response({"detail": "채팅방이 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+        chat.users.remove(user)
+        
+        # 시스템 메시지 DB에 저장
+        Message.objects.create(
+            chat=chat,
+            sender=None,  # 시스템 메시지이므로 None 또는 시스템 유저
+            text=f"{user.username}님이 채팅방을 나갔습니다.",
+            type="system"
+        )
+        
+        # 시스템 메시지 WebSocket 브로드캐스트
+        channel_layer = get_channel_layer()
+        print(f"채팅방 {chat_id}에서 {user.username}님이 나갔습니다.")  # 디버깅 - J
+        async_to_sync(channel_layer.group_send)(
+            f"chat_{chat_id}",
+            {
+                "type": "chat.message",
+                "message": {
+                    "type": "system",
+                    "text": f"{user.username}님이 채팅방을 나갔습니다.",
+                    "createdAt": timezone.now().isoformat(),
+                }
+            }
+        )
+        
+        return Response({"detail": "채팅방에서 나갔습니다."}, status=status.HTTP_200_OK)
 
 # 채팅방
 class ChatViewSet(viewsets.ModelViewSet):

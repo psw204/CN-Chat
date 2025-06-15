@@ -30,7 +30,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['id', 'chat', 'sender', 'text', 'img', 'img_url', 'created_at']
+        fields = ['id', 'chat', 'sender', 'text', 'img', 'img_url', 'created_at', 'type'] # type 필드 추가, 마찬가지로 관리자 구별을 위함 - J
 
     def get_img_url(self, obj):
         if not obj.img:
@@ -48,14 +48,16 @@ class ChatSerializer(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()
     class Meta:
         model = Chat
-        fields = ['id', 'chat_room_name', 'is_group', 'users', 'updated_at', 'last_message'] # 단체 챗방 이름이랑 그룹 여부 추가
+        fields = ['id', 'chat_room_name', 'is_group', 'users', 'updated_at', 'last_message'] # 단체 챗방 이름이랑 그룹 여부 추가, 메세지 타입도 추가 - J
     
     def get_last_message(self, obj):
         last_msg = obj.message_set.order_by('-created_at').first()
         if last_msg:
-            return {
+            return {                                                                         # 타입이 추가되면서 내용이 수정됨 - J
+                "id": last_msg.id,
                 "text": last_msg.text,
-                "sender": last_msg.sender.username,
+                "type": last_msg.type,
+                "sender": last_msg.sender.username if last_msg.sender else None,
                 "created_at": last_msg.created_at.isoformat(),
             }
         return None

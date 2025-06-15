@@ -288,3 +288,13 @@
   color: #232946;
 }
 
+.system-message {
+  text-align: center;
+  color: #8c8c8c;
+  border-radius: 8px;
+  margin: 12px 0;
+  padding: 8px 0;
+  font-style: italic;
+  font-size: 0.98em;
+  text-decoration: none;
+}

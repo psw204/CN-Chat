@@ -158,6 +158,17 @@ export async function toggleBlock({ userId, targetId, block }) {
   return await res.json();
 }
 
+// 단체 채팅방 나가기 - J
+export async function leaveGroupChat({ chatId }) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_BASE}/chats/leave/${chatId}/`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("채팅방 나가기 실패");
+}
+
+
 // 유저 단일 정보 조회
 export async function fetchUser({ userId }) {
   const token = localStorage.getItem("token");

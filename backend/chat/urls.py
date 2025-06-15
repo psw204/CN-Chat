@@ -1,8 +1,8 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     RegisterView, MeView, UserSearchView, UserDetailView, BlockUserView,
-    ChatViewSet, MessageViewSet, MediaUploadView, CustomTokenObtainPairView
+    ChatViewSet, MessageViewSet, MediaUploadView, CustomTokenObtainPairView, LeaveGroupChatView
 )
 from rest_framework.routers import DefaultRouter
 
@@ -20,6 +20,7 @@ urlpatterns = [
     path('media/upload/', MediaUploadView.as_view(), name='media_upload'),
     path('chats/<int:chat_id>/messages/', MessageViewSet.as_view({'get': 'list', 'post': 'create'})),
     path('chats/<int:pk>/seen/', ChatViewSet.as_view({'post': 'seen'})),
+    path('chats/leave/<int:chat_id>/', LeaveGroupChatView.as_view(), name='leave_group_chat')                   # 단체 채팅방 나가기
 ]
 
 urlpatterns += router.urls

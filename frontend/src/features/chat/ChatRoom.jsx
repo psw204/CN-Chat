@@ -4,7 +4,8 @@ import { useChatStore } from "../../shared/store/chatStore";
 import { useUserStore } from "../../shared/store/userStore";
 import profileImg from "../../assets/images/profile.jpg";
 import * as api from "../../shared/api";
-import { format } from "timeago.js";
+//import { format } from "timeago.js";                                // 몇시간 지났는지 확인하는 라이브인데 이제는 곧 안쓸듯여 - J
+import { format } from "date-fns";                                 // 00:00분으로 서버에 입력된 시간을 기준으로 내용 변경할 예정      
 import { connectChatSocket, sendChatMessage, closeChatSocket } from "../../shared/socket";
 
 const DJANGO_SERVER = "http://localhost:8000";
@@ -40,7 +41,7 @@ const ChatRoom = () => {
       .catch(() => setMessages([]));
 
     const socket = connectChatSocket(chatId, (data) => {
-      if (data.type === "message" || !data.type) {
+      if (data.type === "message" || !data.type || data.type === "system") {      // 시스템 메시지도 받아옴 - J
         setMessages((prev) => [...prev, data]);
       }
     });
@@ -124,6 +125,19 @@ const ChatRoom = () => {
     }
   };
 
+  // 단체 채팅방 나가기 - J
+  const handleLeaveGroup = async () => {
+    if (!chatId) return;
+    console.log("나가기 버튼 클릭됨", chatId);
+    try {
+      await api.leaveGroupChat({ chatId });
+      window.location.reload();
+    } catch (err) {
+      alert("채팅방 나가기 실패");
+    }
+  };
+
+
   if (!user) return null;
 
   if (isCurrentUserBlocked || isReceiverBlocked) {                                //차단된 상태의 채팅방 - J
@@ -131,7 +145,8 @@ const ChatRoom = () => {
       <div className="chatroom-header">
         <div className="room-title">
           {/* 사실 여기는 보일 필요가 없긴한데 일단 추가 - J */}
-          <h3> {chat?.chat_room_name ? chat.chat_room_name : user?.username} </h3> 
+          <h3> {isGroup ? chatRoomName : user?.username} </h3> 
+            <p> {isGroup && users ? `${users.length}명 참여중` : user?.username} </p>  
         </div>
         <div className="chatroom-header">
           <div className="user-info">
@@ -169,21 +184,38 @@ const ChatRoom = () => {
           <img src={getAvatarSrc(user?.avatar)} alt="" />
           <div className="user-details">
             <h3> {isGroup ? chatRoomName : user?.username} </h3> 
-            {/* 유저 수 테스트 - J  */}
             <p> {isGroup && users ? `${users.length}명 참여중` : user?.username} </p>                                     
           </div>
         </div>
-        <button
-          className={`block-btn${isReceiverBlocked ? " unblocked" : ""}`}
-          onClick={handleBlock}
-          disabled={isUpdatingBlock}
-        >
-          {isUpdatingBlock ? "처리중..." : isReceiverBlocked ? "차단 해제" : "차단"}
-        </button>
+        {isGroup ? (
+          <button
+            className="block-btn"
+            onClick={handleLeaveGroup}
+            disabled={isUpdatingBlock}
+          >
+            {isUpdatingBlock ? "처리중..." : "나가기"}
+          </button>
+        ) : (
+          <button
+            className={`block-btn${isReceiverBlocked ? " unblocked" : ""}`}
+            onClick={handleBlock}
+            disabled={isUpdatingBlock}
+          >
+            {isUpdatingBlock ? "처리중..." : isReceiverBlocked ? "차단 해제" : "차단"}
+          </button>
+        )}
       </div>
       <div className="message-container">
         <div className="message-list">
           {messages.map((msg, i) => {
+            if (msg.type === "system") {                              // 시스템 메시지(누가 나갔는지 채팅방에 알릴 때 쓰임) - J 
+              return (
+                <div key={i} className="system-message">
+                  <span className="system-text">{msg.text}</span>
+                </div>
+              );
+            }
+
             const isMine = (msg.senderId ?? msg.sender?.id) === currentUser.id;
             const profile = isMine
               ? getAvatarSrc(currentUser.avatar)
@@ -198,7 +230,7 @@ const ChatRoom = () => {
                     </div>
                   )}
                   <div className="message-bubble">{msg.text}</div>
-                  <span className="message-time">{format(msg.createdAt || msg.created_at)}</span>
+                  <span className="message-time">{format(new Date(msg.createdAt || msg.created_at), "HH:mm")}</span>
                 </div>
               </div>
             );
