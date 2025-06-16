@@ -140,14 +140,9 @@ const ChatRoom = () => {
 
   if (!user) return null;
 
-  if (isCurrentUserBlocked || isReceiverBlocked) {                                //차단된 상태의 채팅방 - J
+  if (isCurrentUserBlocked || isReceiverBlocked) {                              //차단된 상태의 채팅방 개인 챗방에서만 쓰는거라 단체 챗방하고 맞출 필요는 없을듯 합니다 - J
     return (
-      <div className="chatroom-header">
-        <div className="room-title">
-          {/* 사실 여기는 보일 필요가 없긴한데 일단 추가 - J */}
-          <h3> {isGroup ? chatRoomName : user?.username} </h3> 
-            <p> {isGroup && users ? `${users.length}명 참여중` : user?.username} </p>  
-        </div>
+      <div className="chatroom">
         <div className="chatroom-header">
           <div className="user-info">
             <img src={getAvatarSrc(user?.avatar)} alt="" />
