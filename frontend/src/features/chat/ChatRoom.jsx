@@ -9,6 +9,7 @@ import { connectChatSocket, sendChatMessage, closeChatSocket } from "../../share
 
 const DJANGO_SERVER = "http://localhost:8000";
 
+
 function getAvatarSrc(avatar) {
   if (!avatar || avatar === "null" || avatar === "") return profileImg;
   if (avatar.startsWith("http://") || avatar.startsWith("https://")) return avatar;
@@ -17,6 +18,29 @@ function getAvatarSrc(avatar) {
 }
 
 const ChatRoom = () => {
+  const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    setUploading(true);
+    try {
+      const res = await fetch("http://localhost:8000/api/chat/upload/", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      alert("업로드 성공: " + data.url);
+    } catch {
+      alert("업로드 실패");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
   const [media, setMedia] = useState({ file: null, url: "" });
@@ -217,6 +241,37 @@ const ChatRoom = () => {
               onKeyDown={(e) => e.key === "Enter" && sendMessageHandler()}
             />
             <div className="message-actions">
+              <button
+                className="file-upload-button"
+                type="button"
+                onClick={() => fileInputRef.current.click()}
+              >
+              파일
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+              
+              <button
+                className="file-upload-button"
+                type="button"
+                onClick={() => fileInputRef.current.click()}
+              >
+                파일
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+              <button className="media-button">사진</button>
+              <button className="send-button">전송</button>
+              
+
               <button className="media-button" onClick={triggerMediaUpload} type="button">
                 사진
               </button>

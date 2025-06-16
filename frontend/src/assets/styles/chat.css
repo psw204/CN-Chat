@@ -288,3 +288,19 @@
   color: #232946;
 }
 
+/* 사진 버튼 왼쪽에 파일 업로드 버튼 스타일 추가 */
+.file-upload-button {
+  background: linear-gradient(90deg, #6bcfff 60%, #4ae891 100%);
+  color: #232946;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-right: 8px;
+  transition: background 0.18s;
+}
+.file-upload-button:hover {
+  background: linear-gradient(90deg, #4ae891 60%, #6bcfff 100%);
+}
