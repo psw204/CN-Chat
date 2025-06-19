@@ -20,7 +20,7 @@ urlpatterns = [
     path('media/upload/', MediaUploadView.as_view(), name='media_upload'),
     path('chats/<int:chat_id>/messages/', MessageViewSet.as_view({'get': 'list', 'post': 'create'})),
     path('chats/<int:pk>/seen/', ChatViewSet.as_view({'post': 'seen'})),
-    path('chats/leave/<int:chat_id>/', LeaveGroupChatView.as_view(), name='leave_group_chat')                   # 단체 채팅방 나가기
+    path('chats/leave/<int:chat_id>/', LeaveGroupChatView.as_view(), name='leave_group_chat'),                 # 단체 채팅방 나가기
 ]
 
 urlpatterns += router.urls

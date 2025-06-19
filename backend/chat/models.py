@@ -7,6 +7,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
+    is_online = models.BooleanField(default=False) # 온/오프라인 필드 추가
     
 class Chat(models.Model):
     users = models.ManyToManyField(User)

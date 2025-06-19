@@ -7,6 +7,7 @@ import * as api from "../../shared/api";
 //import { format } from "timeago.js";                                // 몇시간 지났는지 확인하는 라이브인데 이제는 곧 안쓸듯여 - J
 import { format } from "date-fns";                                 // 00:00분으로 서버에 입력된 시간을 기준으로 내용 변경할 예정      
 import { connectChatSocket, sendChatMessage, closeChatSocket } from "../../shared/socket";
+import { useOnlineUserStore } from "../../shared/store/onlineStore";
 
 const DJANGO_SERVER = "http://localhost:8000";
 
@@ -137,6 +138,41 @@ const ChatRoom = () => {
     }
   };
 
+  function useUserOnlineStatus(userId) {
+  const setOnlineUser = useOnlineUserStore((state) => state.setOnlineUser);
+  useEffect(() => {
+    const socket = new WebSocket("ws://localhost:8000/ws/status/");
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "user_status" && data.user_id === userId) {
+        setOnlineUser(data.user_id, data.is_online);
+      }
+    };
+    return () => socket.close();
+  }, [userId, setOnlineUser]);
+
+  const onlineUsers = useOnlineUserStore((state) => state.onlineUsers);
+  return onlineUsers[userId] || false;
+}
+
+function UserProfile({ user, isBlocked }) {
+  const onlineUsers = useOnlineUserStore((state) => state.onlineUsers);
+  const isOnline = onlineUsers[user.id] || false;
+
+  useUserOnlineStatus(user.id); // 커스텀 훅 사용
+
+   console.log("UserProfile", user, isOnline, isBlocked); // 상태 및 클래스 확인
+
+  return (
+    <img
+      src={getAvatarSrc(user?.avatar)}
+      className={isBlocked ? "online" : isOnline ? "online" : "offline"}
+      alt=""
+    />
+  );
+}
+
+
 
   if (!user) return null;
 
@@ -145,7 +181,7 @@ const ChatRoom = () => {
       <div className="chatroom">
         <div className="chatroom-header">
           <div className="user-info">
-            <img src={getAvatarSrc(user?.avatar)} alt="" />
+            <UserProfile user={user} isBlocked={user.blocked?.includes?.(currentUser.id)} /> {/* user prop 전달 */}
             <div className="user-details">
               <h4>{user?.username}</h4>
               <p>{isCurrentUserBlocked ? "상대방에게 차단당했습니다." : "상대방을 차단한 상태입니다."}</p>
@@ -176,7 +212,7 @@ const ChatRoom = () => {
     <div className="chatroom">
       <div className="chatroom-header">
         <div className="user-info">
-          <img src={getAvatarSrc(user?.avatar)} alt="" />
+          <UserProfile user={user} isBlocked={user.blocked?.includes?.(currentUser.id)} />
           <div className="user-details">
             <h3> {isGroup ? chatRoomName : user?.username} </h3> 
             <p> {isGroup && users ? `${users.length}명 참여중` : user?.username} </p>                                     

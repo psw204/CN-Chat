@@ -12,6 +12,7 @@ from rest_framework import status
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.utils import timezone
+from rest_framework.generics import RetrieveAPIView
 
 # 회원가입
 class RegisterView(APIView):
@@ -46,6 +47,12 @@ class UserSearchView(APIView):
 class UserDetailView(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+# 유저 온오프라인 상태
+class UserOnlineStatusView(RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'user_id'
 
 # 차단/차단해제
 class BlockUserView(APIView):

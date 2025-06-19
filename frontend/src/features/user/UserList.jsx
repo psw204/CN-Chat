@@ -9,6 +9,7 @@ import searchImg from "../../assets/images/search.png";
 import profileImg from "../../assets/images/profile.jpg";
 import makechattingroomImg from "../../assets/images/add_chatting_room.png";
 import * as api from "../../shared/api";
+import { useOnlineUserStore } from "../../shared/store/onlineStore";
 
 const ChatList = () => {
   const [chats, setChats] = useState([]);
@@ -86,6 +87,44 @@ const ChatList = () => {
     return new Date(bTime) - new Date(aTime);
   });
 
+    function useUserOnlineStatus(userId) {
+    const setOnlineUser = useOnlineUserStore((state) => state.setOnlineUser);
+    useEffect(() => {
+      const socket = new WebSocket("ws://localhost:8000/ws/status/");
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === "user_status" && data.user_id === userId) {
+          setOnlineUser(data.user_id, data.is_online);
+        }
+      };
+      return () => socket.close();
+    }, [userId, setOnlineUser]);
+  
+    const onlineUsers = useOnlineUserStore((state) => state.onlineUsers);
+    return onlineUsers[userId] || false;
+  }
+  
+  function UserProfile({ user, currentUserId,isBlocked}) {
+    const onlineUsers = useOnlineUserStore((state) => state.onlineUsers);
+    const isOnline = isBlocked ? false : onlineUsers[user.id] || false;
+  
+    useUserOnlineStatus(user?.id); // 커스텀 훅 사용
+  
+    if (!user) return null;
+
+    const profileSrc = user.blocked?.includes?.(currentUserId)
+    ? profileImg
+    : user.avatar || profileImg;
+
+    return (
+    <img
+      src={profileSrc}
+      className={isOnline ? "online" : "offline"}
+      alt=""
+    />
+  );
+  }
+
   return (
     <div className="chat-list-panel">
       <div className="chatlist-search">
@@ -118,16 +157,18 @@ const ChatList = () => {
           style={{
             backgroundColor: chat?.isSeen ? "transparent" : "#4ae89133",
             borderLeft: chat?.isSeen ? "none" : "4px solid #4ae891",
-          }}
-        >
-          <img
+          }} // 채팅방 프로필
+        > 
+         <UserProfile user={chat.user} currentUserId={currentUser.id} />
+          {/* <img
             src={
               chat.user.blocked?.includes?.(currentUser.id)
                 ? profileImg
                 : chat.user.avatar || profileImg
             }
+            
             alt=""
-          />
+          /> */}
           <div className="chatlist-item-texts">
             <span>
               {chat.isGroup

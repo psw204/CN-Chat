@@ -29,8 +29,15 @@
   height: 54px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2.5px solid #4ae891;
+  border: none;
   background: #fff;
+}
+.user-info img.online {
+  border: 2.5px solid #4ae891 !important; /*온라인 테두리*/
+}
+
+.user-info img.offline {
+  border: 2.5px solid #ff6b6b !important; /*오프라인 테두리*/
 }
 
 .user-details h4 {

@@ -7,10 +7,11 @@ from django.contrib.auth import authenticate
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     blocked = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    is_online = serializers.BooleanField(read_only=True) # 온/오프라인
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'avatar', 'password','blocked']
+        fields = ['id', 'username', 'email', 'avatar', 'password','blocked','is_online'] # 온/오프라인 추가
         extra_kwargs = {
             'password': {'write_only': True},
         }

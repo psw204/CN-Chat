@@ -93,7 +93,15 @@
   height: 48px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #4ae89133;
+  border: none; /*온라인 테두리*/
+}
+
+.chatlist-item img.online {
+  border: 2.5px solid #4ae891 !important; /*온라인 테두리*/
+}
+
+.chatlist-item img.offline {
+  border: 2.5px solid #e84a87 !important; /*오프라인 테두리*/
 }
 
 .chatlist-item-texts {
