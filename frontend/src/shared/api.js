@@ -44,15 +44,18 @@ export async function searchUser({ username }) {
 }
 
 // 채팅방 생성
-export async function createChat({userId}) {
+export async function createChat({user_ids, chat_room_name}) { // userids로 수정되었습니다 - J
   const token = localStorage.getItem("token");
+  const body = { user_ids };
+  if (chat_room_name) body.chat_room_name = chat_room_name; // 단체 채팅방일 때만 추가
+
   const res = await fetch(`${API_BASE}/chats/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ user_id: userId }),
+    body: JSON.stringify(body),
   });
   if (res.status !== 200 && res.status !== 201) throw new Error();
   return await res.json();
@@ -74,12 +77,13 @@ export async function fetchUserChats({ userId }) {
   const data = await res.json();
   
   return data.map(chat => {
-    const otherUser = chat.users.find(u => u.id !== userId) || chat.users[0];
-    // last_message 필드 활용
     return {
       chatId: chat.id,
-      user: otherUser,
-      lastMessage: chat.last_message, // last_message 전체 객체를 저장
+      displayName: chat.chat_room_name, // ← 항상 이름만 출력
+      isGroup: chat.is_group,
+      user: chat.users.find(u => u.id !== userId) || chat.users[0],
+      users: chat.users,                //유저 리스트도 같이 넘김 - J
+      lastMessage: chat.last_message,
       isSeen: true,
       updatedAt: chat.updated_at,
     };
@@ -153,6 +157,17 @@ export async function toggleBlock({ userId, targetId, block }) {
   if (!res.ok) throw new Error("차단/차단해제 실패");
   return await res.json();
 }
+
+// 단체 채팅방 나가기 - J
+export async function leaveGroupChat({ chatId }) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_BASE}/chats/leave/${chatId}/`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("채팅방 나가기 실패");
+}
+
 
 // 유저 단일 정보 조회
 export async function fetchUser({ userId }) {

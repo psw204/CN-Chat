@@ -7,6 +7,7 @@ import plusImg from "../../assets/images/plus.png";
 import minusImg from "../../assets/images/minus.png";
 import searchImg from "../../assets/images/search.png";
 import profileImg from "../../assets/images/profile.jpg";
+import makechattingroomImg from "../../assets/images/add_chatting_room.png";
 import * as api from "../../shared/api";
 
 const ChatList = () => {
@@ -14,6 +15,7 @@ const ChatList = () => {
   const [addMode, setAddMode] = useState(false);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [createRoomMode, setCreateRoomMode] = useState(false); // 기존 코드에서 여러명의 인원 추가 - J
 
   const { currentUser } = useUserStore();
   const { chatId, changeChat } = useChatStore();
@@ -58,7 +60,13 @@ const ChatList = () => {
         await api.markChatAsSeen({ userId: currentUser.id, chatId: chat.chatId });
       }
 
-      await changeChat(chat.chatId, chat.user);
+      await changeChat(                                               //채팅방 버튼 눌렀을 때 전달되는 내용들 - J
+        chat.chatId, 
+        chat.user,
+        chat.chatRoomName || chat.displayName || chat.chat_room_name, // 방 이름 - J
+        chat.isGroup,                                                  // 단체방 여부 - J
+        chat.users                                                    // 참여자 정보도 같이 전달 - J
+      );
     } catch (err) {
       // 에러 핸들링
     } finally {
@@ -95,6 +103,12 @@ const ChatList = () => {
           className="chatlist-add-btn"
           onClick={() => setAddMode((prev) => !prev)}
         />
+        <img                        //채팅방 생성 버튼 - J
+          src={addMode ? minusImg : makechattingroomImg}
+          alt="채팅방 만들기"
+          className="makechattingroom-btn"
+          onClick={() => { setCreateRoomMode((prev) => !prev);}}
+        />
       </div>
       {sortedChats.map((chat) => (
         <div
@@ -116,9 +130,12 @@ const ChatList = () => {
           />
           <div className="chatlist-item-texts">
             <span>
-              {chat.user.blocked?.includes?.(currentUser.id)
-                ? "User"
-                : chat.user.username}
+              {chat.isGroup
+                ? chat.displayName || chat.chat_room_name // 단체방이면 방 이름 - J
+                : chat.user.blocked?.includes?.(currentUser.id)
+                  ? "User"
+                  : chat.user.username // 1:1이면 유저 이름 - J
+              }
             </span>
             <span>
               {chat.lastMessage
@@ -142,6 +159,21 @@ const ChatList = () => {
           isLoading={isLoading}
         />
       )}
+
+      {createRoomMode && (
+        <AddUser
+          onClose={() => setCreateRoomMode(false)}
+          onChatCreated={async () => {
+            setCreateRoomMode(false);
+            const data = await api.fetchUserChats({ userId: currentUser.id });
+            setChats(data);
+          }}
+          isLoading={isLoading}
+          multiSelect={true} // 여러 명 선택
+        />
+      )}
+
+
       {isLoading && <div className="loading-overlay">로딩 중...</div>}
     </div>
   );

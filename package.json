@@ -6,5 +6,8 @@
     "frontend": "cd frontend && npm run dev",
     "backend": "cd backend && venv\\Scripts\\activate && daphne -b 0.0.0.0 -p 8000 cschat.asgi:application",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0"
   }
 }

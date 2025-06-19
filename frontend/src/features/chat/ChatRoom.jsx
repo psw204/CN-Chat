@@ -4,7 +4,8 @@ import { useChatStore } from "../../shared/store/chatStore";
 import { useUserStore } from "../../shared/store/userStore";
 import profileImg from "../../assets/images/profile.jpg";
 import * as api from "../../shared/api";
-import { format } from "timeago.js";
+//import { format } from "timeago.js";                                // 몇시간 지났는지 확인하는 라이브인데 이제는 곧 안쓸듯여 - J
+import { format } from "date-fns";                                 // 00:00분으로 서버에 입력된 시간을 기준으로 내용 변경할 예정      
 import { connectChatSocket, sendChatMessage, closeChatSocket } from "../../shared/socket";
 
 const DJANGO_SERVER = "http://localhost:8000";
@@ -24,10 +25,11 @@ const ChatRoom = () => {
   const [isUpdatingBlock, setIsUpdatingBlock] = useState(false);
 
   const { currentUser } = useUserStore();
-  const { chatId, user, isCurrentUserBlocked, isReceiverBlocked, changeChat } = useChatStore();
+  const { chatId, user, chatRoomName, isGroup, isCurrentUserBlocked, isReceiverBlocked, changeChat, users } = useChatStore();
 
   const messagesEndRef = useRef(null);
   const mediaInputRef = useRef(null);
+
 
   // 메시지 내역 불러오기 + WebSocket 연결
   useEffect(() => {
@@ -39,7 +41,7 @@ const ChatRoom = () => {
       .catch(() => setMessages([]));
 
     const socket = connectChatSocket(chatId, (data) => {
-      if (data.type === "message" || !data.type) {
+      if (data.type === "message" || !data.type || data.type === "system") {      // 시스템 메시지도 받아옴 - J
         setMessages((prev) => [...prev, data]);
       }
     });
@@ -58,7 +60,7 @@ const ChatRoom = () => {
     if (!chatId || !user) return;
     const interval = setInterval(async () => {
       try {
-        await changeChat(chatId, user);
+        await changeChat(chatId, user, chatRoomName, isGroup, users); //단체 채팅방 여부와 채팅방 이름도 같이 업데이트 - J
       } catch (err) {}
     }, 5000);
     return () => clearInterval(interval);
@@ -115,7 +117,7 @@ const ChatRoom = () => {
     setIsUpdatingBlock(true);
     try {
       await api.toggleBlock({ userId: currentUser.id, targetId: user.id, block: !isReceiverBlocked });
-      await changeChat(chatId, user); // 서버에서 최신 blocked 상태 반영
+      await changeChat(chatId, user, users); // 서버에서 최신 blocked 상태 반영
     } catch (err) {
       // 에러 처리
     } finally {
@@ -123,9 +125,22 @@ const ChatRoom = () => {
     }
   };
 
+  // 단체 채팅방 나가기 - J
+  const handleLeaveGroup = async () => {
+    if (!chatId) return;
+    console.log("나가기 버튼 클릭됨", chatId);
+    try {
+      await api.leaveGroupChat({ chatId });
+      window.location.reload();
+    } catch (err) {
+      alert("채팅방 나가기 실패");
+    }
+  };
+
+
   if (!user) return null;
 
-  if (isCurrentUserBlocked || isReceiverBlocked) {
+  if (isCurrentUserBlocked || isReceiverBlocked) {                              //차단된 상태의 채팅방 개인 챗방에서만 쓰는거라 단체 챗방하고 맞출 필요는 없을듯 합니다 - J
     return (
       <div className="chatroom">
         <div className="chatroom-header">
@@ -157,27 +172,45 @@ const ChatRoom = () => {
     );
   }
 
-  return (
+  return (                                                                      //차단되지 않은 상태의 채팅방 - J
     <div className="chatroom">
       <div className="chatroom-header">
         <div className="user-info">
           <img src={getAvatarSrc(user?.avatar)} alt="" />
           <div className="user-details">
-            <h4>{user?.username}</h4>
-            <p>{user?.username}</p>
+            <h3> {isGroup ? chatRoomName : user?.username} </h3> 
+            <p> {isGroup && users ? `${users.length}명 참여중` : user?.username} </p>                                     
           </div>
         </div>
-        <button
-          className={`block-btn${isReceiverBlocked ? " unblocked" : ""}`}
-          onClick={handleBlock}
-          disabled={isUpdatingBlock}
-        >
-          {isUpdatingBlock ? "처리중..." : isReceiverBlocked ? "차단 해제" : "차단"}
-        </button>
+        {isGroup ? (
+          <button
+            className="block-btn"
+            onClick={handleLeaveGroup}
+            disabled={isUpdatingBlock}
+          >
+            {isUpdatingBlock ? "처리중..." : "나가기"}
+          </button>
+        ) : (
+          <button
+            className={`block-btn${isReceiverBlocked ? " unblocked" : ""}`}
+            onClick={handleBlock}
+            disabled={isUpdatingBlock}
+          >
+            {isUpdatingBlock ? "처리중..." : isReceiverBlocked ? "차단 해제" : "차단"}
+          </button>
+        )}
       </div>
       <div className="message-container">
         <div className="message-list">
           {messages.map((msg, i) => {
+            if (msg.type === "system") {                              // 시스템 메시지(누가 나갔는지 채팅방에 알릴 때 쓰임) - J 
+              return (
+                <div key={i} className="system-message">
+                  <span className="system-text">{msg.text}</span>
+                </div>
+              );
+            }
+
             const isMine = (msg.senderId ?? msg.sender?.id) === currentUser.id;
             const profile = isMine
               ? getAvatarSrc(currentUser.avatar)
@@ -192,7 +225,7 @@ const ChatRoom = () => {
                     </div>
                   )}
                   <div className="message-bubble">{msg.text}</div>
-                  <span className="message-time">{format(msg.createdAt || msg.created_at)}</span>
+                  <span className="message-time">{format(new Date(msg.createdAt || msg.created_at), "HH:mm")}</span>
                 </div>
               </div>
             );

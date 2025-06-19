@@ -7,6 +7,11 @@ from .serializers import UserSerializer, ChatSerializer, MessageSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import IsAuthenticated           
+from rest_framework import status
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from django.utils import timezone
 
 # 회원가입
 class RegisterView(APIView):
@@ -57,33 +62,99 @@ class BlockUserView(APIView):
             request.user.blocked.remove(target)
         request.user.save()
         return Response({"blocked": [u.id for u in request.user.blocked.all()]})
+    
+# 단체 채팅방 나가기 - J   
+class LeaveGroupChatView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, chat_id):
+        user = request.user
+        try:
+            chat = Chat.objects.get(id=chat_id, is_group=True)
+        except Chat.DoesNotExist:
+            return Response({"detail": "채팅방이 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+        chat.users.remove(user)
+        
+        # 시스템 메시지 DB에 저장
+        Message.objects.create(
+            chat=chat,
+            sender=None,  # 시스템 메시지이므로 None 또는 시스템 유저
+            text=f"{user.username}님이 채팅방을 나갔습니다.",
+            type="system"
+        )
+        
+        # 시스템 메시지 WebSocket 브로드캐스트
+        channel_layer = get_channel_layer()
+        print(f"채팅방 {chat_id}에서 {user.username}님이 나갔습니다.")  # 디버깅 - J
+        async_to_sync(channel_layer.group_send)(
+            f"chat_{chat_id}",
+            {
+                "type": "chat.message",
+                "message": {
+                    "type": "system",
+                    "text": f"{user.username}님이 채팅방을 나갔습니다.",
+                    "createdAt": timezone.now().isoformat(),
+                }
+            }
+        )
+        
+        return Response({"detail": "채팅방에서 나갔습니다."}, status=status.HTTP_200_OK)
 
 # 채팅방
 class ChatViewSet(viewsets.ModelViewSet):
     serializer_class = ChatSerializer
     queryset = Chat.objects.all()
 
-    def get_queryset(self):
+    def get_queryset(self):                                             # 로그인된 user_id를 제공하는 함수 - J
         user_id = self.request.query_params.get("user_id")
+        # print("user_id:", user_id) # 디버깅 - J
         if user_id:
+            # for chat in Chat.objects.filter(users__id=user_id):
+            #     print(f"id: {chat.id}, 이름: {chat.chat_room_name}, 단체방 여부: {chat.is_group}, 멤버: {[u.id for u in chat.users.all()]}") # 디버깅 - J
             return Chat.objects.filter(users__id=user_id)
         return Chat.objects.none()
 
     def create(self, request, *args, **kwargs):
-        user_id = request.data.get("user_id")
-        if not user_id:
-            return Response({"detail": "user_id required"}, status=400)
-        user1 = request.user
-        try:
-            user2 = User.objects.get(pk=user_id)
-        except User.DoesNotExist:
-            return Response({"detail": "user not found"}, status=404)
-        # 중복 채팅방 방지
-        chat = Chat.objects.filter(users=user1).filter(users=user2).first()
-        if chat:
-            return Response(ChatSerializer(chat).data, status=200)
-        chat = Chat.objects.create()
-        chat.users.add(user1, user2)
+        print("request.data:", request.data)
+        
+        user_ids = request.data.get("user_ids")
+        chat_room_name = request.data.get("chat_room_name")
+        
+        # print("user_ids:", user_ids, type(user_ids)) # 디버깅 - J
+        # print("chat_room_name:", chat_room_name)
+        # print("len(user_ids):", len(user_ids))
+
+        if not user_ids or not isinstance(user_ids, list):
+            return Response({"detail": "user_ids(required: list) required"}, status=400)
+
+        users = User.objects.filter(id__in=user_ids)
+        if users.count() != len(user_ids):
+            return Response({"detail": "일부 유저를 찾을 수 없습니다."}, status=404)
+
+        #1:1 채팅방이면 chat_room_name을 자동으로 상대방 id로 지정 - J
+        if len(user_ids) == 1:
+            # print("1:1 채팅방 생성") # 디버깅 - J
+            other_user = users.first()
+            chat_room_name = str(other_user.id)
+        #단체 채팅방일 때만 chat_room_name 필수 - J
+        elif not chat_room_name:
+            return Response({"detail": "chat_room_name(required) required"}, status=400)
+
+        # 개인 챗방 중복 방지 - J
+        if len(user_ids) == 1:
+            chat = Chat.objects.filter(users=request.user).filter(users__id=user_ids[0]).distinct().first()
+            if chat:
+                # print("중복") # 디버깅 - J
+                return Response(ChatSerializer(chat).data, status=200)
+            chat = Chat.objects.create(chat_room_name=chat_room_name, is_group=False)
+            chat.users.add(request.user, users.first())
+        else:
+            print("단체 채팅방 생성", chat_room_name) # 디버깅 - J
+            chat = Chat.objects.create(chat_room_name=chat_room_name, is_group=True)
+            if request.user.id not in user_ids:            # request.user가 user_ids에 없으면 추가 - J
+                chat.users.add(request.user)
+            chat.users.add(*users)
+
         chat.save()
         return Response(ChatSerializer(chat).data, status=201)
 
