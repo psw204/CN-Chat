@@ -27,10 +27,15 @@ class UserSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     sender = UserSerializer(read_only=True)
     img_url = serializers.SerializerMethodField()
+    file_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Message
+<<<<<<< Updated upstream
         fields = ['id', 'chat', 'sender', 'text', 'img', 'img_url', 'created_at']
+=======
+        fields = ['id', 'chat', 'sender', 'text', 'img', 'img_url', 'file', 'file_url', 'created_at', 'type'] # type 필드 추가, 마찬가지로 관리자 구별을 위함 - J
+>>>>>>> Stashed changes
 
     def get_img_url(self, obj):
         if not obj.img:
@@ -40,6 +45,15 @@ class MessageSerializer(serializers.ModelSerializer):
         if request:
             return request.build_absolute_uri(img_url)
         return img_url
+    
+    def get_file_url(self, obj):
+        if not obj.file:
+            return None
+        request = self.context.get('request')
+        file_url = obj.file.url
+        if request:
+            return request.build_absolute_uri(file_url)
+        return file_url
 
 
 

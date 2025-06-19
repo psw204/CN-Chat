@@ -18,3 +18,8 @@ class Message(models.Model):
     text = models.TextField(blank=True)
     img = models.ImageField(upload_to='messages/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+<<<<<<< Updated upstream
+=======
+    file = models.FileField(upload_to='uploads/', null=True, blank=True)
+    type = models.CharField(max_length=20, default="message")  # type 필드 추가, 관리자 전용으로 쓰이고 일반 메세지에서는 별 신경 안써도 됨- J
+>>>>>>> Stashed changes
