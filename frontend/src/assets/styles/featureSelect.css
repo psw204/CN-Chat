@@ -1,3 +1,12 @@
+.feature-select {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 20px;
+  background: #1a1b26;
+}
+
 .profile-card {
   width: 320px;
   margin: 32px auto 0 auto;
@@ -10,11 +19,6 @@
   align-items: center;
   position: relative;
   animation: fadeIn 0.7s;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-24px);}
-  to   { opacity: 1; transform: none;}
 }
 
 .profile-avatar-wrap {
@@ -59,14 +63,61 @@
   border-radius: 14px;
 }
 
-.profile-actions {
-  display: flex;
-  justify-content: center;
-  margin-top: 8px;
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.feature-btn {
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: white;
+  text-align: center;
   width: 100%;
 }
 
-/* 로그아웃 텍스트 버튼 스타일 */
+.feature-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.feature-btn.udp {
+  background: linear-gradient(135deg, #1890ff 60%, #40a9ff 100%);
+}
+
+.feature-btn.network {
+  background: linear-gradient(135deg, #2196F3 60%, #1976D2 100%);
+}
+
+.feature-btn.weather {
+  background: linear-gradient(135deg, #4CAF50 60%, #45a049 100%);
+}
+
+.feature-btn.chat {
+  background: linear-gradient(135deg, #4ae891 60%, #6bcfff 100%);
+}
+
+.feature-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.profile-actions {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
 .logout-text-btn {
   background: none;
   border: none;
@@ -81,33 +132,10 @@
   box-shadow: 0 2px 8px rgba(74, 233, 145, 0.10);
 }
 
-.logout-text-btn:hover,
-.logout-text-btn:focus {
+.logout-text-btn:hover {
   background: #f44336;
   color: #fff;
   box-shadow: 0 4px 16px rgba(244, 67, 54, 0.18);
-  outline: none;
-}
-
-.weather-btn {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 10px;
-  font-size: 0.9em;
-  transition: background-color 0.3s;
-}
-
-.weather-btn:hover {
-  background-color: #45a049;
-}
-
-.weather-btn:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
 }
 
 .weather-modal {
@@ -116,7 +144,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -124,18 +152,16 @@
 }
 
 .weather-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
   min-width: 300px;
+  max-width: 500px;
 }
 
 .weather-content h3 {
-  margin-top: 0;
-  color: #333;
-  font-size: 1.2em;
+  margin: 0 0 20px 0;
+  color: #232946;
 }
 
 .weather-content p {
@@ -144,63 +170,30 @@
 }
 
 .weather-content button {
-  background-color: #4CAF50;
-  color: white;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #4ae891;
+  color: #232946;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  margin-top: 15px;
-  font-size: 0.9em;
-  transition: background-color 0.3s;
+  font-weight: 600;
 }
 
 .weather-content button:hover {
-  background-color: #45a049;
+  background: #3bd77e;
 }
 
 .city-select {
   width: 100%;
-  padding: 8px;
+  padding: 10px;
   margin: 10px 0;
   border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9em;
-}
-.network-btn {
-  background-color: #2196F3;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 10px;
-  font-size: 0.9em;
-  transition: background-color 0.3s;
+  border-radius: 6px;
+  font-size: 16px;
 }
 
-.network-btn:hover {
-  background-color: #1976D2;
-}
-
-.network-btn:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.udp-btn {
-  background-color: #1890ff;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  margin-right: 8px;
-  transition: background-color 0.3s;
-}
-
-.udp-btn:hover {
-  background-color: #40a9ff;
-}
-
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-24px);}
+  to   { opacity: 1; transform: none;}
+} 

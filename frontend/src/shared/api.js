@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000/api"; // Django 서버 주소로 변경
+import { API_BASE } from './config';
 
 // 회원가입
 export async function register({ username, email, password, avatar }) {
@@ -193,3 +193,30 @@ export async function markChatAsSeen({ userId, chatId }) {
   if (!res.ok) throw new Error("채팅 읽음 처리 실패");
   return await res.json();
 }
+
+// 날씨 정보 가져오기
+export async function getWeather(city = 'Seoul') {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_BASE}/weather/?city=${encodeURIComponent(city)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("날씨 정보 조회 실패");
+  return await res.json();
+}
+
+// 네트워크 상태 확인
+export const checkNetworkStatus = async () => {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE}/network/check/`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('네트워크 상태 확인 실패');
+  }
+  
+  return response.json();
+};
