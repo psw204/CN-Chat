@@ -9,6 +9,7 @@ export function connectChatSocket(chatRoomId, onMessage) {
   };
 
   socket.onmessage = (event) => {
+    console.log("메시지 수신:", event.data);
     const data = JSON.parse(event.data);
     if (onMessage) onMessage(data);
   };

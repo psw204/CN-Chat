@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000/api"; // Django 서버 주소로 변경
+const API_BASE = "http://192.168.45.225:8000/api"; // Django 서버 주소로 변경
 
 // 회원가입
 export async function register({ username, email, password, avatar }) {
@@ -191,5 +191,51 @@ export async function markChatAsSeen({ userId, chatId }) {
     body: JSON.stringify({ user_id: userId }),
   });
   if (!res.ok) throw new Error("채팅 읽음 처리 실패");
+  return await res.json();
+}
+
+// === 온라인/오프라인 상태 관련 API ===
+
+/**
+ * 유저 온라인/오프라인 상태 업데이트 (로그인/로그아웃 시 사용)
+ * @param {number} userId
+ * @param {boolean} isOnline
+ */
+export async function updateUserStatus({ userId, isOnline }) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_BASE}/users/${userId}/status/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ is_online: isOnline }),
+  });
+  if (!res.ok) throw new Error("상태 업데이트 실패");
+  return await res.json();
+}
+
+/**
+ * 온라인 유저 목록 조회
+ */
+export async function fetchOnlineUsers() {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_BASE}/users/online/`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("온라인 유저 목록 조회 실패");
+  return await res.json();
+}
+
+/**
+ * 특정 유저의 온라인 상태 조회
+ * @param {number} userId
+ */
+export async function fetchUserStatus({ userId }) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_BASE}/users/${userId}/status/detail/`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("유저 상태 조회 실패");
   return await res.json();
 }

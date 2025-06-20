@@ -20,3 +20,8 @@ export const useUserStore = create((set) => ({
     }
   },
 }));
+
+export const useOnlineUserStore = create((set) => ({
+  onlineUserIds: [],
+  setOnlineUserIds: (ids) => set({ onlineUserIds: ids }),
+}));

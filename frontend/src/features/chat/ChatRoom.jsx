@@ -47,21 +47,39 @@ const ChatRoom = () => {
   const messagesEndRef = useRef(null);
   const mediaInputRef = useRef(null);
 
+  const setOnlineUserIds = useOnlineUserStore((state) => state.setOnlineUserIds);
+
+  // 온라인 유저 목록을 5초마다 갱신
+  useEffect(() => {
+    let ignore = false;
+    async function fetchOnline() {
+      try {
+        const users = await api.fetchOnlineUsers();
+        if (!ignore) setOnlineUserIds(users.map(u => u.id));
+      } catch (err) {
+        // 에러 무시
+      }
+    }
+    fetchOnline();
+    const interval = setInterval(fetchOnline, 5000);
+    return () => { ignore = true; clearInterval(interval); };
+  }, [setOnlineUserIds]);
+
   // 토큰 기반 온오프라인
   const token = localStorage.getItem("token");
   const setOnlineUser = useOnlineUserStore((state) => state.setOnlineUser);
 
   useEffect(() => {
-    const socket = new WebSocket(`ws://192.168.45.225:8000/ws/status/?token=${token}`);
+    const Socket = new WebSocket(`ws://192.168.45.225:8000/ws/status/?token=${token}`);
 
-    socket.onmessage = (event) => {
+    Socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "user_status") {
         setOnlineUser(data.user_id, data.is_online);
       }
     };
 
-    return () => socket.close();
+    return () => Socket.close();
   }, [setOnlineUser]);
   
 

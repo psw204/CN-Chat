@@ -2,12 +2,21 @@ import { useUserStore } from "../../shared/store/userStore";
 import { useChatStore } from "../../shared/store/chatStore";
 import "../../assets/styles/userInfo.css";
 import profileImg from "../../assets/images/profile.jpg";
+import * as api from "../../shared/api";
+
 
 const UserInfo = () => {
   const { currentUser } = useUserStore();
   const { resetChat } = useChatStore();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // 로그아웃 시 온라인 상태 false로 업데이트
+      await api.updateUserStatus({ userId: currentUser.id, isOnline: false });
+    } catch (err) {
+      // 실패해도 토큰은 삭제
+      console.error("상태 업데이트 실패:", err);
+    }
     localStorage.removeItem("token");
     resetChat();
     window.location.reload();

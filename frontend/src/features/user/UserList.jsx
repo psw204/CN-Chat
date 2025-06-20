@@ -11,6 +11,32 @@ import makechattingroomImg from "../../assets/images/add_chatting_room.png";
 import * as api from "../../shared/api";
 import { useOnlineUserStore } from "../../shared/store/onlineStore";
 
+
+
+// UserProfile을 ChatList 바깥에 선언
+function UserProfile({ user, currentUserId }) {
+  const onlineUsers = useOnlineUserStore((state) => state.onlineUsers);
+  const isOnline = user?.id ? (onlineUsers[user.id] || false) : false;
+
+  // user와 currentUserId가 모두 있을 때만 차단 여부 체크
+  const profileSrc =
+    user?.blocked?.includes?.(currentUserId)
+      ? profileImg
+      : user?.avatar || profileImg;
+
+  if (!user) return null;
+
+  return (
+    <img
+      src={profileSrc}
+      className={isOnline ? "online" : "offline"}
+      alt={`${user?.username || "profile"} avatar`}
+    />
+  );
+}
+
+
+
 const ChatList = () => {
   const [chats, setChats] = useState([]);
   const [addMode, setAddMode] = useState(false);
@@ -20,6 +46,46 @@ const ChatList = () => {
 
   const { currentUser } = useUserStore();
   const { chatId, changeChat } = useChatStore();
+
+  const setOnlineUserIds = useOnlineUserStore((state) => state.setOnlineUserIds);
+  
+  // 온라인 유저 목록을 5초마다 갱신
+  useEffect(() => {
+    let ignore = false;
+    async function fetchOnline() {
+      try {
+        const users = await api.fetchOnlineUsers();
+        if (!ignore) setOnlineUserIds(users.map(u => u.id));
+      } catch (err) {
+        // 에러 무시
+      }
+    }
+    fetchOnline();
+    const interval = setInterval(fetchOnline, 5000);
+    return () => { ignore = true; clearInterval(interval); };
+  }, [setOnlineUserIds]);
+
+
+    // 토큰 기반 온오프라인
+  const token = localStorage.getItem("token");
+  const setOnlineUser = useOnlineUserStore((state) => state.setOnlineUser);
+
+  useEffect(() => {
+    const Socket = new WebSocket(`ws://192.168.45.225:8000/ws/status/?token=${token}`);
+
+    Socket.onopen = () => console.log("웹소켓 연결 성공");
+    Socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("백엔드에서 온 신호:", data);
+      if (data.type === "user_status") {
+        setOnlineUser(data.user_id, data.is_online);
+      }
+    };
+    Socket.onerror = (error) => console.error("웹소켓 에러:", error);
+    Socket.onclose = () => console.log("웹소켓 연결 종료");
+
+    return () => Socket.close();
+  }, [setOnlineUser, token]);
 
   // 채팅 목록 불러오기 (REST API)
   useEffect(() => {
@@ -87,43 +153,43 @@ const ChatList = () => {
     return new Date(bTime) - new Date(aTime);
   });
 
-    function useUserOnlineStatus(userId) {
-    const setOnlineUser = useOnlineUserStore((state) => state.setOnlineUser);
-    useEffect(() => {
-      const socket = new WebSocket("ws://192.168.45.225:8000/ws/status/");
-      socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === "user_status" && data.user_id === userId) {
-          setOnlineUser(data.user_id, data.is_online);
-        }
-      };
-      return () => socket.close();
-    }, [userId, setOnlineUser]);
+  //   function useUserOnlineStatus(userId) {
+  //   const setOnlineUser = useOnlineUserStore((state) => state.setOnlineUser);
+  //   useEffect(() => {
+  //     const socket = new WebSocket("ws://192.168.45.225:8000/ws/status/");
+  //     socket.onmessage = (event) => {
+  //       const data = JSON.parse(event.data);
+  //       if (data.type === "user_status" && data.user_id === userId) {
+  //         setOnlineUser(data.user_id, data.is_online);
+  //       }
+  //     };
+  //     return () => socket.close();
+  //   }, [userId, setOnlineUser]);
   
-    const onlineUsers = useOnlineUserStore((state) => state.onlineUsers);
-    return onlineUsers[userId] || false;
-  }
+  //   const onlineUsers = useOnlineUserStore((state) => state.onlineUsers);
+  //   return onlineUsers[userId] || false;
+  // }
   
-  function UserProfile({ user, currentUserId,isBlocked}) {
-    const onlineUsers = useOnlineUserStore((state) => state.onlineUsers);
-    const isOnline = isBlocked ? false : onlineUsers[user.id] || false;
+  // function UserProfile({ user, currentUserId,isBlocked}) {
+  //   const onlineUsers = useOnlineUserStore((state) => state.onlineUsers);
+  //   const isOnline = isBlocked ? false : onlineUsers[user.id] || false;
   
-    useUserOnlineStatus(user?.id); // 커스텀 훅 사용
+  //   useUserOnlineStatus(user?.id); // 커스텀 훅 사용
   
-    if (!user) return null;
+  //   if (!user) return null;
 
-    const profileSrc = user.blocked?.includes?.(currentUserId)
-    ? profileImg
-    : user.avatar || profileImg;
+  //   const profileSrc = user.blocked?.includes?.(currentUserId)
+  //   ? profileImg
+  //   : user.avatar || profileImg;
 
-    return (
-    <img
-      src={profileSrc}
-      className={isOnline ? "online" : "offline"}
-      alt=""
-    />
-  );
-  }
+  //   return (
+  //   <img
+  //     src={profileSrc}
+  //     className={isOnline ? "online" : "offline"}
+  //     alt=""
+  //   />
+  // );
+  // }
 
   return (
     <div className="chat-list-panel">
