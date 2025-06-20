@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+load_dotenv()
 
 
 SIMPLE_JWT = {
@@ -15,7 +17,7 @@ SECRET_KEY = 'your-secret-key'  # 실제 배포 시 반드시 변경
 DEBUG = True
 AUTH_USER_MODEL = 'chat.User'
 
-ALLOWED_HOSTS = [ ]
+ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -87,7 +89,12 @@ REST_FRAMEWORK = {
     ],
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
 
 CHANNEL_LAYERS = {
     "default": {
