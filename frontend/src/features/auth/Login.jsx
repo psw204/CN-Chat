@@ -60,13 +60,14 @@ const Login = () => {
       // 서버 응답에서 access(=accessToken), refresh(=refreshToken), user를 받아옴
       const { access, refresh, user } = await api.login({ email, password });
       const res = await api.login({ email, password });
-      console.log(res); // { access, refresh, user } 또는 { access, refresh }
+      console.log(res);// { access, refresh, user } 또는 { access, refresh }
       localStorage.setItem("token", access); // access token을 저장
       localStorage.setItem("refreshToken", refresh); // 필요시 refresh token도 저장
       // 필요시 user 정보도 상태로 저장
       
+      // const User = await api.fetchUserInfo(access);
+      // await api.updateUserStatus({ userId: user.id, isOnline: true });
       window.location.reload(); // 새로고침으로 상태 반영
-      await api.updateUserStatus({ userId: user.id, isOnline: true });
     } catch (err) {
       toast.error(err.message || "로그인 실패");
     } finally {
