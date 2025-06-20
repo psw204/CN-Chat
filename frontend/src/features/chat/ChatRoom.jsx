@@ -41,6 +41,7 @@ const ChatRoom = () => {
       .catch(() => setMessages([]));
 
     const socket = connectChatSocket(chatId, (data) => {
+      console.log("WebSocket 수신:", data);
       if (data.type === "message" || !data.type || data.type === "system") {      // 시스템 메시지도 받아옴 - J
         setMessages((prev) => [...prev, data]);
       }
