@@ -22,4 +22,7 @@ build/
 
 # System files
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Media files
+backend/media/ 
