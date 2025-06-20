@@ -25,4 +25,7 @@ build/
 Thumbs.db
 
 # Media files
-backend/media/ 
+backend/media/
+
+# Database file
+backend/db.sqlite3

@@ -11,5 +11,5 @@ const getServerIP = () => {
 };
 
 export const SERVER_IP = getServerIP();
-export const API_BASE = "http://localhost:8000/api";
-export const WS_BASE = "ws://localhost:8000"; 
+export const API_BASE = `http://${SERVER_IP}:8000/api`;
+export const WS_BASE = `ws://${SERVER_IP}:8000`; 

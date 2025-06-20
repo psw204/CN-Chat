@@ -32,7 +32,8 @@ const FeatureSelect = () => {
 
   // UDP WebSocket 연결 설정
   useEffect(() => {
-    const wsUrl = `ws://localhost:8000/ws/udp/`;
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${wsProtocol}//${window.location.hostname}:8000/ws/udp/`;
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
@@ -136,7 +137,7 @@ const FeatureSelect = () => {
     setCurrentMessage(null);
   };
 
-  const DJANGO_SERVER = "http://localhost:8000";
+  const DJANGO_SERVER = `${window.location.protocol}//${window.location.hostname}:8000`;
 
   const avatarSrc =
     currentUser.avatar &&
