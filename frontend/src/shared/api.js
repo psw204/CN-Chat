@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000/api"; // Django 서버 주소로 변경
+import { API_BASE } from './config';
 
 // 회원가입
 export async function register({ username, email, password, avatar }) {
@@ -44,15 +44,18 @@ export async function searchUser({ username }) {
 }
 
 // 채팅방 생성
-export async function createChat({userId}) {
+export async function createChat({user_ids, chat_room_name}) { // userids로 수정되었습니다 - J
   const token = localStorage.getItem("token");
+  const body = { user_ids };
+  if (chat_room_name) body.chat_room_name = chat_room_name; // 단체 채팅방일 때만 추가
+
   const res = await fetch(`${API_BASE}/chats/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ user_id: userId }),
+    body: JSON.stringify(body),
   });
   if (res.status !== 200 && res.status !== 201) throw new Error();
   return await res.json();
@@ -74,12 +77,13 @@ export async function fetchUserChats({ userId }) {
   const data = await res.json();
   
   return data.map(chat => {
-    const otherUser = chat.users.find(u => u.id !== userId) || chat.users[0];
-    // last_message 필드 활용
     return {
       chatId: chat.id,
-      user: otherUser,
-      lastMessage: chat.last_message, // last_message 전체 객체를 저장
+      displayName: chat.chat_room_name, // ← 항상 이름만 출력
+      isGroup: chat.is_group,
+      user: chat.users.find(u => u.id !== userId) || chat.users[0],
+      users: chat.users,                //유저 리스트도 같이 넘김 - J
+      lastMessage: chat.last_message,
       isSeen: true,
       updatedAt: chat.updated_at,
     };
@@ -157,6 +161,17 @@ export async function toggleBlock({ userId, targetId, block }) {
   return await res.json();
 }
 
+// 단체 채팅방 나가기 - J
+export async function leaveGroupChat({ chatId }) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_BASE}/chats/leave/${chatId}/`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("채팅방 나가기 실패");
+}
+
+
 // 유저 단일 정보 조회
 export async function fetchUser({ userId }) {
   const token = localStorage.getItem("token");
@@ -181,3 +196,30 @@ export async function markChatAsSeen({ userId, chatId }) {
   if (!res.ok) throw new Error("채팅 읽음 처리 실패");
   return await res.json();
 }
+
+// 날씨 정보 가져오기
+export async function getWeather(city = 'Seoul') {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_BASE}/weather/?city=${encodeURIComponent(city)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("날씨 정보 조회 실패");
+  return await res.json();
+}
+
+// 네트워크 상태 확인
+export const checkNetworkStatus = async () => {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE}/network/check/`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('네트워크 상태 확인 실패');
+  }
+  
+  return response.json();
+};
