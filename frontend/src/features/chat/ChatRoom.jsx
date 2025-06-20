@@ -22,12 +22,12 @@ function getAvatarSrc(avatar) {
 
 function UserProfile({ user }) {
   // user.is_online이 true면 online, 아니면 offline
-  const onlineUserIds = useOnlineUserStore((state) => state.onlineUserIds);
-  const isOnline = onlineUserIds.includes(user.id);
+  // const onlineUserIds = useOnlineUserStore((state) => state.onlineUserIds);
+  // const isOnline = onlineUserIds.includes(user.id);
   return (
     <img
       src={getAvatarSrc(user.avatar)}
-      className={isOnline ? "online" : "offline"}
+      className={user.is_online ? "online" : "offline"}
       alt={`${user.username} avatar`}
     />
   );
@@ -54,6 +54,7 @@ const ChatRoom = () => {
     async function fetchOnline() {
       try {
         const users = await api.fetchOnlineUsers();
+        console.log('온라인 유저 목록',users);
         if (!ignore) setOnlineUserIds(users.map(u => u.id));
       } catch (err) {
         // 에러 무시
