@@ -45,7 +45,6 @@ const ChatList = () => {
     async function fetchOnline() {
       try {
         const users = await api.fetchOnlineUsers();
-        console.log('온라인 유저 목록',users);
         if (!ignore) setOnlineUserIds(users.map(u => u.id));
       } catch (err) {
         // 에러 무시
