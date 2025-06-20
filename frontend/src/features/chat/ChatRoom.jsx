@@ -10,6 +10,7 @@ import { connectChatSocket, sendChatMessage, closeChatSocket } from "../../share
 
 const DJANGO_SERVER = "http://localhost:8000";
 
+
 function getAvatarSrc(avatar) {
   if (!avatar || avatar === "null" || avatar === "") return profileImg;
   if (avatar.startsWith("http://") || avatar.startsWith("https://")) return avatar;
@@ -18,6 +19,29 @@ function getAvatarSrc(avatar) {
 }
 
 const ChatRoom = () => {
+  const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    setUploading(true);
+    try {
+      const res = await fetch("http://localhost:8000/api/chat/upload/", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      alert("업로드 성공: " + data.url);
+    } catch {
+      alert("업로드 실패");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
   const [media, setMedia] = useState({ file: null, url: "" });
@@ -84,11 +108,21 @@ const ChatRoom = () => {
   const sendMessageHandler = async () => {
     if (!messageText.trim() && !media.file) return;
     let imgPath = null;
+    let filePath = null;
     try {
       if (media.file) {
-        imgPath = await api.uploadMedia(media.file); // 반드시 "uploads/xxx.jpg"만
+        if (media.file.type.startsWith("image/")) {
+          imgPath = await api.uploadMedia(media.file);
+        } else {
+          filePath = await api.uploadMedia(media.file);
+        }
       }
-      const savedMessage = await api.sendMessage({ chatId, text: messageText, img: imgPath });
+      const savedMessage = await api.sendMessage({
+        chatId,
+        text: messageText,
+        img: imgPath,
+        file: filePath
+      });
       const getAbsoluteImgUrl = (img_url) => {
         if (!img_url) return null;
         if (img_url.startsWith("http")) return img_url;
@@ -101,6 +135,7 @@ const ChatRoom = () => {
         text: savedMessage.text,
         img: getAbsoluteImgUrl(savedMessage.img_url || savedMessage.img),
         img_url: getAbsoluteImgUrl(savedMessage.img_url || savedMessage.img),
+        file_url: savedMessage.file,
         createdAt: savedMessage.created_at || savedMessage.createdAt,
       });
     } catch (err) {
@@ -224,6 +259,16 @@ const ChatRoom = () => {
                       <img src={msg.img_url || msg.img} alt="" />
                     </div>
                   )}
+                  {msg.file_url && (
+                    <a
+                      href={`http://localhost:8000${msg.file_url}`}
+                      download
+                      className="file-download-link"
+                      style={{ marginLeft: "8px" }}
+                    >
+                      <button type="button">파일 다운로드</button>
+                    </a>
+                  )}
                   <div className="message-bubble">{msg.text}</div>
                   <span className="message-time">{format(new Date(msg.createdAt || msg.created_at), "HH:mm")}</span>
                 </div>
@@ -237,7 +282,11 @@ const ChatRoom = () => {
         <div className="message-composer">
           {media.url && (
             <div className="media-preview">
-              <img src={media.url} alt="미리보기" />
+              {media.file.type.startsWith("image/") ? (
+                <img src={media.url} alt="미리보기" />
+              ) : (
+                <span>{media.file.name}</span>
+              )}
               <span onClick={() => setMedia({ file: null, url: "" })}>×</span>
             </div>
           )}
@@ -250,6 +299,37 @@ const ChatRoom = () => {
               onKeyDown={(e) => e.key === "Enter" && sendMessageHandler()}
             />
             <div className="message-actions">
+              <button
+                className="file-upload-button"
+                type="button"
+                onClick={() => fileInputRef.current.click()}
+              >
+              파일
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+              
+              <button
+                className="file-upload-button"
+                type="button"
+                onClick={() => fileInputRef.current.click()}
+              >
+                파일
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+              <button className="media-button">사진</button>
+              <button className="send-button">전송</button>
+              
+
               <button className="media-button" onClick={triggerMediaUpload} type="button">
                 사진
               </button>
@@ -258,7 +338,6 @@ const ChatRoom = () => {
                 style={{ display: "none" }}
                 ref={mediaInputRef}
                 onChange={handleMediaUpload}
-                accept="image/*"
               />
               <button className="send-button" onClick={sendMessageHandler} type="button">
                 전송

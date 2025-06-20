@@ -103,15 +103,18 @@ export async function fetchMessages({ chatId }) {
 }
 
 // 메시지 전송
-export async function sendMessage({ chatId, text, img }) {
+export async function sendMessage({ chatId, text, img, file }) {
   const token = localStorage.getItem("token");
+  const body = { text };
+  if (img) body.img = img;
+  if (file) body.file = file;
   const res = await fetch(`${API_BASE}/chats/${chatId}/messages/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ text, img }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error("메시지 전송 실패");
   return await res.json();

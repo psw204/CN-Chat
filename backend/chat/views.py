@@ -187,7 +187,8 @@ class MessageViewSet(viewsets.ModelViewSet):
             chat=chat,
             sender=request.user,
             text=request.data.get("text", ""),
-            img=request.data.get("img", None)
+            img=request.data.get("img", None),
+            file=request.data.get("file", None),
         )
         msg.save()
         return Response(MessageSerializer(msg).data, status=201)
