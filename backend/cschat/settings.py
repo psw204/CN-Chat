@@ -17,11 +17,7 @@ SECRET_KEY = 'your-secret-key'  # 실제 배포 시 반드시 변경
 DEBUG = True
 AUTH_USER_MODEL = 'chat.User'
 
-<<<<<<< HEAD
 ALLOWED_HOSTS = ['*']  # 모든 호스트 허용
-=======
-ALLOWED_HOSTS = []
->>>>>>> origin/Django
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -93,23 +89,16 @@ REST_FRAMEWORK = {
     ],
 }
 
-<<<<<<< HEAD
 CORS_ALLOW_ALL_ORIGINS = True
-=======
-CORS_ALLOW_ALL_ORIGINS = False
->>>>>>> origin/Django
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
-<<<<<<< HEAD
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^http://\d+\.\d+\.\d+\.\d+:\d+$",  # IP 주소와 포트 조합 허용
     r"^http://\d+\.\d+\.\d+\.\d+$",      # IP 주소만 허용
 ]
-=======
->>>>>>> origin/Django
 
 CHANNEL_LAYERS = {
     "default": {
