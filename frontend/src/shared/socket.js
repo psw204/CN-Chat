@@ -2,7 +2,7 @@ let socket = null;
 
 export function connectChatSocket(chatRoomId, onMessage) {
   // Django Channels 예시: ws://localhost:8000/ws/chat/{chatRoomId}/
-  socket = new WebSocket(`ws://localhost:8000/ws/chat/${chatRoomId}/`);
+  socket = new WebSocket(`ws://192.168.45.225:8000/ws/chat/${chatRoomId}/`);
 
   socket.onopen = () => {
     console.log("WebSocket 연결됨");

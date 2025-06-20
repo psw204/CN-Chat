@@ -4,7 +4,7 @@ import { useUserStore } from "../../shared/store/userStore";
 import profileImg from "../../assets/images/profile.jpg";
 import * as api from "../../shared/api";
 
-const DJANGO_SERVER = "http://localhost:8000";
+const DJANGO_SERVER = "http://192.168.45.225:8000";
 
 function getAvatarSrc(avatar) {
   if (!avatar || avatar === "null" || avatar === "") return profileImg;

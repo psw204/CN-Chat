@@ -90,7 +90,7 @@ const ChatList = () => {
     function useUserOnlineStatus(userId) {
     const setOnlineUser = useOnlineUserStore((state) => state.setOnlineUser);
     useEffect(() => {
-      const socket = new WebSocket("ws://localhost:8000/ws/status/");
+      const socket = new WebSocket("ws://192.168.45.225:8000/ws/status/");
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === "user_status" && data.user_id === userId) {

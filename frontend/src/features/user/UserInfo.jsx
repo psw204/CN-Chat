@@ -30,7 +30,7 @@ const UserInfo = () => {
   };
 
 
-  const DJANGO_SERVER = "http://localhost:8000"; // 백엔드 주소
+  const DJANGO_SERVER = "http://192.168.45.225:8000"; // 백엔드 주소
 
 const avatarSrc =
   currentUser.avatar &&
