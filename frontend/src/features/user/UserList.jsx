@@ -14,23 +14,13 @@ import { useOnlineUserStore } from "../../shared/store/onlineStore";
 
 
 // UserProfile을 ChatList 바깥에 선언
-function UserProfile({ user, currentUserId }) {
-  const onlineUsers = useOnlineUserStore((state) => state.onlineUsers);
-  const isOnline = user?.id ? (onlineUsers[user.id] || false) : false;
-
-  // user와 currentUserId가 모두 있을 때만 차단 여부 체크
-  const profileSrc =
-    user?.blocked?.includes?.(currentUserId)
-      ? profileImg
-      : user?.avatar || profileImg;
-
-  if (!user) return null;
-
+function UserProfile({ user }) {
+  // user.is_online이 true면 online, 아니면 offline
   return (
     <img
-      src={profileSrc}
-      className={isOnline ? "online" : "offline"}
-      alt={`${user?.username || "profile"} avatar`}
+      src={user.avatar || profileImg}
+      className={user.is_online ? "online" : "offline"}
+      alt={user.username}
     />
   );
 }
@@ -65,6 +55,8 @@ const ChatList = () => {
     const interval = setInterval(fetchOnline, 5000);
     return () => { ignore = true; clearInterval(interval); };
   }, [setOnlineUserIds]);
+
+  
 
 
     // 토큰 기반 온오프라인
