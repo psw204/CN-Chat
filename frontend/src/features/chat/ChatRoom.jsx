@@ -18,29 +18,18 @@ function getAvatarSrc(avatar) {
   return `${DJANGO_SERVER}/media/${avatar}`;
 }
 
-function getStatusWebSocketUrl() {
-  const token = localStorage.getItem('token');
-  // 반드시 백엔드 주소와 포트, ws/wss 구분에 맞게 수정
-  return `ws://192.168.45.225:8000/ws/status/?token=${token}`;
-}
-
-function UserProfile({ user, currentUser }) {
+// 유저 프로필
+function UserProfile({ user }) {
   const onlineUsers = useOnlineUserStore((state) => state.onlineUsers);
-  const isOnline = user ? (onlineUsers[user.id] || false) : false;
-  // currentUser가 반드시 있어야 함
-  const isBlocked = user && user.blockedUsers && currentUser
-    ? user.blockedUsers.includes(currentUser.id)
-    : false;
-  if (!user) return null;
+  const isOnline = onlineUsers[user.id] || false;
 
   return (
     <div className="user-profile">
       <img
         src={getAvatarSrc(user.avatar)}
-        className={isBlocked ? "offline" : isOnline ? "online" : "offline"}
+        className={isOnline ? "online" : "offline"}
         alt={`${user.username} avatar`}
       />
-      <span>{user.username}</span>
     </div>
   );
 }
@@ -57,6 +46,24 @@ const ChatRoom = () => {
 
   const messagesEndRef = useRef(null);
   const mediaInputRef = useRef(null);
+
+  // 토큰 기반 온오프라인
+  const token = localStorage.getItem("token");
+  const setOnlineUser = useOnlineUserStore((state) => state.setOnlineUser);
+
+  useEffect(() => {
+    const socket = new WebSocket(`ws://192.168.45.225:8000/ws/status/?token=${token}`);
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "user_status") {
+        setOnlineUser(data.user_id, data.is_online);
+      }
+    };
+
+    return () => socket.close();
+  }, [setOnlineUser]);
+  
 
 
   // 메시지 내역 불러오기 + WebSocket 연결
@@ -166,37 +173,38 @@ const ChatRoom = () => {
   };
 
   
-  useEffect(() => {
-    if (!currentUser) return;
+  // useEffect(() => {
+  //   if (!currentUser) return;
 
-    // [수정1] 토큰 포함된 주소로 웹소켓 연결
-    const ws = new WebSocket(getStatusWebSocketUrl());
+  //   // [수정1] 토큰 포함된 주소로 웹소켓 연결
+  //   const ws = new WebSocket(getStatusWebSocketUrl());
 
-    ws.onopen = () => {
-      console.log("온오프라인 상태 웹소켓 연결 성공");
-    };
+  //   ws.onopen = () => {
+  //     console.log("온오프라인 상태 웹소켓 연결 성공");
+  //   };
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === "user_status") {
-        // [수정2] Zustand 등으로 온라인 상태 저장
-        useOnlineUserStore.getState().setOnlineUser(data.user_id, data.is_online);
-      }
-    };
+  //   ws.onmessage = (event) => {
+  //     const data = JSON.parse(event.data);
+  //     console.log("백엔드에서 온 신호:", data); // 여기서 신호 확인 가능
+  //     if (data.type === "user_status") {
+  //       // [수정2] Zustand 등으로 온라인 상태 저장
+  //       useOnlineUserStore.getState().setOnlineUser(data.user_id, data.is_online);
+  //     }
+  //   };
 
-    ws.onerror = (error) => {
-      console.error("온오프라인 웹소켓 에러:", error);
-    };
+  //   ws.onerror = (error) => {
+  //     console.error("온오프라인 웹소켓 에러:", error);
+  //   };
 
-    ws.onclose = () => {
-      console.log("온오프라인 상태 웹소켓 연결 종료");
-    };
+  //   ws.onclose = () => {
+  //     console.log("온오프라인 상태 웹소켓 연결 종료");
+  //   };
 
-    // [수정3] 컴포넌트 언마운트 시 연결 해제
-    return () => {
-      if (ws && ws.readyState === 1) ws.close();
-    };
-  }, [currentUser]); // [수정3] currentUser가 바뀔 때만 재연결
+  //   // [수정3] 컴포넌트 언마운트 시 연결 해제
+  //   return () => {
+  //     if (ws && ws.readyState === 1) ws.close();
+  //   };
+  // }, [currentUser]); // [수정3] currentUser가 바뀔 때만 재연결
 
 
   
@@ -207,7 +215,7 @@ const ChatRoom = () => {
       <div className="chatroom">
         <div className="chatroom-header">
           <div className="user-info">
-              <UserProfile user={user} currentUser={currentUser} />
+              <UserProfile user={user} />
             <div className="user-details">
               <h4>{user?.username}</h4>
               <p>{isCurrentUserBlocked ? "상대방에게 차단당했습니다." : "상대방을 차단한 상태입니다."}</p>
@@ -239,7 +247,7 @@ const ChatRoom = () => {
       <div className="chatroom-header">
         <div className="user-info">
           {/* 유저 프로필 */}
-            <UserProfile user={user} currentUser={currentUser} />
+            <UserProfile user={user} />
           <div className="user-details">
             <h3> {isGroup ? chatRoomName : user?.username} </h3> 
             <p> {isGroup && users ? `${users.length}명 참여중` : user?.username} </p>                                     
