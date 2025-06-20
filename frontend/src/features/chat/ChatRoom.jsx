@@ -18,19 +18,16 @@ function getAvatarSrc(avatar) {
   return `${DJANGO_SERVER}/media/${avatar}`;
 }
 
-// 유저 프로필
-function UserProfile({ user }) {
-  const onlineUsers = useOnlineUserStore((state) => state.onlineUsers);
-  const isOnline = onlineUsers[user.id] || false;
 
+
+function UserProfile({ user }) {
+  // user.is_online이 true면 online, 아니면 offline
   return (
-    <div className="user-profile">
-      <img
-        src={getAvatarSrc(user.avatar)}
-        className={isOnline ? "online" : "offline"}
-        alt={`${user.username} avatar`}
-      />
-    </div>
+    <img
+      src={getAvatarSrc(user.avatar)}
+      className={user.is_online ? "online" : "offline"}
+      alt={`${user.username} avatar`}
+    />
   );
 }
 
@@ -233,7 +230,7 @@ const ChatRoom = () => {
       <div className="chatroom">
         <div className="chatroom-header">
           <div className="user-info">
-              <UserProfile user={user} />
+              <UserProfile user={user} currentUserId={currentUser.id} />
             <div className="user-details">
               <h4>{user?.username}</h4>
               <p>{isCurrentUserBlocked ? "상대방에게 차단당했습니다." : "상대방을 차단한 상태입니다."}</p>
@@ -265,7 +262,7 @@ const ChatRoom = () => {
       <div className="chatroom-header">
         <div className="user-info">
           {/* 유저 프로필 */}
-            <UserProfile user={user} />
+            <UserProfile user={user} currentUserId={currentUser.id} />
           <div className="user-details">
             <h3> {isGroup ? chatRoomName : user?.username} </h3> 
             <p> {isGroup && users ? `${users.length}명 참여중` : user?.username} </p>                                     
