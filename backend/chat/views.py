@@ -1,7 +1,9 @@
+# 서버를 같은 네트워크의 다른 기기에서 접속 가능하게 하려면 아래 명령어로 실행하세요:
+# python manage.py runserver 0.0.0.0:8000
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions, generics, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from .models import User, Chat, Message
 from .serializers import UserSerializer, ChatSerializer, MessageSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -12,6 +14,13 @@ from rest_framework import status
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.utils import timezone
+import requests
+import os
+from django.http import JsonResponse
+import subprocess
+import socket
+import json
+from datetime import datetime
 
 # 회원가입
 class RegisterView(APIView):
@@ -200,3 +209,87 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_weather(request):
+    api_key = os.getenv('OPENWEATHER_API_KEY')
+    city = request.GET.get('city', 'Seoul')
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric'
+    response = requests.get(url)
+    return JsonResponse(response.json())
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_network_status(request):
+    try:
+        # DNS 쿼리
+        dns_results = {}
+        for domain in ['google.com', 'github.com']:
+            try:
+                ip = socket.gethostbyname(domain)
+                dns_results[domain] = {'ip': ip}
+            except socket.gaierror as e:
+                dns_results[domain] = {'error': str(e)}
+
+        # ICMP ping (Windows 환경)
+        ping_results = {}
+        for domain in ['google.com', 'github.com']:
+            try:
+                result = subprocess.run(
+                    ['ping', '-n', '4', domain],
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                ping_results[domain] = result.stdout
+            except subprocess.CalledProcessError as e:
+                ping_results[domain] = {'error': str(e)}
+
+        return Response({
+            'dns': dns_results,
+            'ping': ping_results
+        })
+    except Exception as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def send_udp_notification(request):
+    try:
+        # UDP 소켓 생성
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        
+        # 메시지 준비
+        message = {
+            'type': 'notification',
+            'content': request.data.get('message', '테스트 메시지'),
+            'timestamp': timezone.now().isoformat(),
+            'sender': request.user.username
+        }
+        message_json = json.dumps(message).encode()
+        
+        # 브로드캐스트 주소로 직접 전송
+        sock.sendto(message_json, ('255.255.255.255', 9999))
+        print(f"UDP 메시지 전송: {message}")
+        
+        # WebSocket을 통해 클라이언트에게 전달
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "udp_notifications",
+            {
+                "type": "udp.message",
+                "message": message
+            }
+        )
+        
+        return Response({'status': 'success', 'message': 'UDP 알림 전송됨'})
+    except Exception as e:
+        print(f"UDP 전송 오류: {e}")
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        sock.close()

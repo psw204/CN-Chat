@@ -1,0 +1,23 @@
+{
+  "timestamp": "2025-06-19T01:57:29.090194",
+  "user": {
+    "id": 49,
+    "username": "Sjsj@djdj.com",
+    "email": "Sjsj@djdj.com"
+  },
+  "chats": [
+    {
+      "id": 57,
+      "name": "48",
+      "is_group": false,
+      "messages": [
+        {
+          "id": 172,
+          "sender": "ddd@ddd.com",
+          "content": "'''",
+          "timestamp": "2025-06-18T16:05:33.269041+00:00"
+        }
+      ]
+    }
+  ]
+}
