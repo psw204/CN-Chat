@@ -22,10 +22,12 @@ function getAvatarSrc(avatar) {
 
 function UserProfile({ user }) {
   // user.is_online이 true면 online, 아니면 offline
+  const onlineUserIds = useOnlineUserStore((state) => state.onlineUserIds);
+  const isOnline = onlineUserIds.includes(user.id);
   return (
     <img
       src={getAvatarSrc(user.avatar)}
-      className={user.is_online ? "online" : "offline"}
+      className={isOnline ? "online" : "offline"}
       alt={`${user.username} avatar`}
     />
   );
