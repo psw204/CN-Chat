@@ -70,17 +70,19 @@ class ChatSerializer(serializers.ModelSerializer):
             }
         return None
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = User.EMAIL_FIELD  # 'email'
-
-    def validate(self, attrs):
-        email = attrs.get("email")
-        password = attrs.get("password")
-        user = authenticate(request=self.context.get('request'), email=email, password=password)
-        if user is None or not user.is_active:
-            raise serializers.ValidationError("No active account found with the given credentials")
-        user.is_online = True
-        user.last_activity = timezone.now()
-        user.save(update_fields=['is_online', 'last_activity'])
-        attrs['user'] = user
-        return super().validate(attrs)
+def validate(self, attrs):
+    email = attrs.get("email")
+    password = attrs.get("password")
+    user = authenticate(request=self.context.get('request'), email=email, password=password)
+    if user is None or not user.is_active:
+        raise serializers.ValidationError("No active account found with the given credentials")
+    user.is_online = True
+    user.last_activity = timezone.now()
+    user.save(update_fields=['is_online', 'last_activity'])
+    data = super().validate(attrs)  # access, refresh 토큰 생성
+    data['user'] = {
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+    }
+    return data
