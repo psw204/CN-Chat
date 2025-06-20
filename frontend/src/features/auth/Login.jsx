@@ -65,7 +65,7 @@ const Login = () => {
       localStorage.setItem("refreshToken", refresh); // 필요시 refresh token도 저장
       // 필요시 user 정보도 상태로 저장
       
-      // const User = await api.fetchUserInfo(access);
+      // const user = await api.fetchUserInfo(access);
       // await api.updateUserStatus({ userId: user.id, isOnline: true });
       window.location.reload(); // 새로고침으로 상태 반영
     } catch (err) {
