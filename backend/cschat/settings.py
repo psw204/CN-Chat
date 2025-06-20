@@ -15,7 +15,7 @@ SECRET_KEY = 'your-secret-key'  # 실제 배포 시 반드시 변경
 DEBUG = True
 AUTH_USER_MODEL = 'chat.User'
 
-ALLOWED_HOSTS = [ ]
+ALLOWED_HOSTS = ['localhost','192.168.45.225','127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -73,6 +73,10 @@ DATABASES = {
 }
 
 STATIC_URL = '/static/'
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static'),
+# ]
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 

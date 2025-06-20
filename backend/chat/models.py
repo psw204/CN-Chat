@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 
 class User(AbstractUser):
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
@@ -8,6 +9,7 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
     is_online = models.BooleanField(default=False) # 온/오프라인 필드 추가
+    last_activity = models.DateTimeField(default=timezone.now)
     
 class Chat(models.Model):
     users = models.ManyToManyField(User)

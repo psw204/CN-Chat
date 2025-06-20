@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import User, Chat, Message
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
+from django.utils import timezone # 토큰 기반 온 오프라인
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -11,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'avatar', 'password','blocked','is_online'] # 온/오프라인 추가
+        fields = ['id', 'username', 'email', 'avatar', 'password','blocked','is_online','last_activity'] # 온/오프라인 추가
         extra_kwargs = {
             'password': {'write_only': True},
         }
@@ -23,6 +25,11 @@ class UserSerializer(serializers.ModelSerializer):
             user.set_password(password)
         user.save()
         return user
+    
+    def update_activity(self, is_online): # 토큰 기반 온 오프라인
+        self.last_activity = timezone.now()
+        self.is_online = is_online
+        self.save()
 
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -72,5 +79,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         user = authenticate(request=self.context.get('request'), email=email, password=password)
         if user is None or not user.is_active:
             raise serializers.ValidationError("No active account found with the given credentials")
+        user.is_online = True
+        user.last_activity = timezone.now()
+        user.save(update_fields=['is_online', 'last_activity'])
         attrs['user'] = user
         return super().validate(attrs)

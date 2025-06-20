@@ -48,11 +48,65 @@ class UserDetailView(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-# 유저 온오프라인 상태
-class UserOnlineStatusView(RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    lookup_field = 'user_id'
+# 유저 온오프라인 상태 업데이트
+from rest_framework import status
+from rest_framework.response import Response
+from django.utils import timezone
+from .models import User
+from rest_framework.decorators import api_view, permission_classes
+
+# 함수형 뷰에 인증 적용
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def update_user_status(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    is_online = request.data.get('is_online')
+    user.is_online = is_online
+    user.last_activity = timezone.now()
+    user.save()
+    return Response(status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_online_users(request):
+    online_users = User.objects.filter(is_online=True)
+    serializer = UserSerializer(online_users, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_user_status(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
+
+# 클래스형 뷰는 하나로 통일하는 것이 좋음
+class OnlineUserListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        online_users = User.objects.filter(is_online=True)
+        serializer = UserSerializer(online_users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UserStatusDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 # 차단/차단해제
 class BlockUserView(APIView):
