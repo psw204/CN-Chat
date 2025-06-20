@@ -57,14 +57,11 @@ const Login = () => {
     const { email, password } = Object.fromEntries(formData);
 
     try {
-      // 서버 응답에서 access(=accessToken), refresh(=refreshToken), user를 받아옴
       const { access, refresh, user } = await api.login({ email, password });
       console.log('유저 정보 로그인',user)
       localStorage.setItem("token", access); // access token을 저장
       localStorage.setItem("refreshToken", refresh); // 필요시 refresh token도 저장
       // 필요시 user 정보도 상태로 저장
-      
-      // const user = await api.fetchUserInfo(access);
       
       window.location.reload(); // 새로고침으로 상태 반영
       await api.updateUserStatus({ userId: user.id, isOnline: true });

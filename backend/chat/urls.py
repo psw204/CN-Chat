@@ -40,7 +40,4 @@ urlpatterns = [
     path('users/<int:user_id>/status/detail/', get_user_status, name='get-user-status'),
 ]
 
-# if settings.DEBUG:
-#     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
 urlpatterns += router.urls

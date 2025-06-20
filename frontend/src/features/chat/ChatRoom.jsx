@@ -18,12 +18,7 @@ function getAvatarSrc(avatar) {
   return `${DJANGO_SERVER}/media/${avatar}`;
 }
 
-
-
 function UserProfile({ user }) {
-  // user.is_online이 true면 online, 아니면 offline
-  // const onlineUserIds = useOnlineUserStore((state) => state.onlineUserIds);
-  // const isOnline = onlineUserIds.includes(user.id);
   return (
     <img
       src={getAvatarSrc(user.avatar)}
@@ -190,42 +185,6 @@ const ChatRoom = () => {
     }
   };
 
-  
-  // useEffect(() => {
-  //   if (!currentUser) return;
-
-  //   // [수정1] 토큰 포함된 주소로 웹소켓 연결
-  //   const ws = new WebSocket(getStatusWebSocketUrl());
-
-  //   ws.onopen = () => {
-  //     console.log("온오프라인 상태 웹소켓 연결 성공");
-  //   };
-
-  //   ws.onmessage = (event) => {
-  //     const data = JSON.parse(event.data);
-  //     console.log("백엔드에서 온 신호:", data); // 여기서 신호 확인 가능
-  //     if (data.type === "user_status") {
-  //       // [수정2] Zustand 등으로 온라인 상태 저장
-  //       useOnlineUserStore.getState().setOnlineUser(data.user_id, data.is_online);
-  //     }
-  //   };
-
-  //   ws.onerror = (error) => {
-  //     console.error("온오프라인 웹소켓 에러:", error);
-  //   };
-
-  //   ws.onclose = () => {
-  //     console.log("온오프라인 상태 웹소켓 연결 종료");
-  //   };
-
-  //   // [수정3] 컴포넌트 언마운트 시 연결 해제
-  //   return () => {
-  //     if (ws && ws.readyState === 1) ws.close();
-  //   };
-  // }, [currentUser]); // [수정3] currentUser가 바뀔 때만 재연결
-
-
-  
   if (!user) return null;
 
   if (isCurrentUserBlocked || isReceiverBlocked) {                              //차단된 상태의 채팅방 개인 챗방에서만 쓰는거라 단체 챗방하고 맞출 필요는 없을듯 합니다 - J
