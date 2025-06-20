@@ -1,45 +1,28 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../../shared/store/userStore";
-import { useChatStore } from "../../shared/store/chatStore";
 import "../../assets/styles/userInfo.css";
 import profileImg from "../../assets/images/profile.jpg";
 
 const UserInfo = () => {
-  const { currentUser } = useUserStore();
-  const { resetChat } = useChatStore();
+  const navigate = useNavigate();
+  const { currentUser, logout } = useUserStore();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    resetChat();
-    window.location.reload();
+    logout();
+    navigate("/login");
   };
 
-  // 프로필 이미지 경로 안전 처리 함수
-  const getAvatarSrc = () => {
-    const avatar = currentUser.avatar;
-    if (!avatar || avatar === "null" || avatar === "") {
-      return profileImg;
-    }
-    if (avatar.startsWith("http://") || avatar.startsWith("https://")) {
-      return avatar;
-    }
-    if (avatar.startsWith("/")) {
-      return `${window.location.origin}${avatar}`;
-    }
-    // 혹시 avatars/xxx.jpg 등으로 올 경우
-    return `${window.location.origin}/media/${avatar}`;
-  };
+  const DJANGO_SERVER = `${window.location.protocol}//${window.location.hostname}:8000`;
 
-
-  const DJANGO_SERVER = "http://localhost:8000"; // 백엔드 주소
-
-const avatarSrc =
-  currentUser.avatar &&
-  currentUser.avatar !== "null" &&
-  currentUser.avatar !== ""
-    ? currentUser.avatar.startsWith("/media/")
-      ? `${DJANGO_SERVER}${currentUser.avatar}`
-      : currentUser.avatar
-    : profileImg;
+  const avatarSrc =
+    currentUser.avatar &&
+    currentUser.avatar !== "null" &&
+    currentUser.avatar !== ""
+      ? currentUser.avatar.startsWith("/media/")
+        ? `${DJANGO_SERVER}${currentUser.avatar}`
+        : currentUser.avatar
+      : profileImg;
 
   return (
     <div className="profile-card">

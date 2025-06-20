@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import * as api from "../api";
+import { useChatStore } from "./chatStore";
 
 // 유저 상태 관리
 export const useUserStore = create((set) => ({
@@ -18,5 +19,12 @@ export const useUserStore = create((set) => ({
     } catch (err) {
       set({ currentUser: null, isLoading: false });
     }
+  },
+
+  // 로그아웃
+  logout: () => {
+    localStorage.removeItem("token");
+    useChatStore.getState().resetChat();
+    set({ currentUser: null, isLoading: false });
   },
 }));

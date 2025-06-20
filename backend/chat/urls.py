@@ -2,12 +2,14 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     RegisterView, MeView, UserSearchView, UserDetailView, BlockUserView,
-    ChatViewSet, MessageViewSet, MediaUploadView, CustomTokenObtainPairView, LeaveGroupChatView
+    ChatViewSet, MessageViewSet, MediaUploadView, CustomTokenObtainPairView, LeaveGroupChatView,
+    get_weather, check_network_status, send_udp_notification
 )
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register('chats', ChatViewSet, basename='chat')
+router.register(r'chats/(?P<chat_id>\d+)/messages', MessageViewSet, basename='message')
 
 urlpatterns = [
     path('auth/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -20,7 +22,10 @@ urlpatterns = [
     path('media/upload/', MediaUploadView.as_view(), name='media_upload'),
     path('chats/<int:chat_id>/messages/', MessageViewSet.as_view({'get': 'list', 'post': 'create'})),
     path('chats/<int:pk>/seen/', ChatViewSet.as_view({'post': 'seen'})),
-    path('chats/leave/<int:chat_id>/', LeaveGroupChatView.as_view(), name='leave_group_chat')                   # 단체 채팅방 나가기
+    path('chats/leave/<int:chat_id>/', LeaveGroupChatView.as_view(), name='leave_group_chat'),
+    path('weather/', get_weather, name='get_weather'),
+    path('network/check/', check_network_status, name='check_network_status'),
+    path('chat/send-udp-notification/', send_udp_notification, name='send-udp-notification'),
 ]
 
 urlpatterns += router.urls
